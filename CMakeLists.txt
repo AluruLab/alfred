@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.8)
 set(PROJECT_NAME_STR kaveri)
 PROJECT(${PROJECT_NAME_STR} C CXX)
 #TODO CHANGE THIS OPTION
-# set(CMAKE_VERBOSE_MAKEFILE on)
+set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_BUILD_TYPE Debug)
 
 find_package(Threads REQUIRED)
@@ -12,24 +12,22 @@ find_package(Threads REQUIRED)
 set(SDSL_SOURCE_DIR "${PROJECT_SOURCE_DIR}/ext/sdsl-lite")
 
 # flags
-set(CMAKE_CXX_FLAGS                "-Wall -std=c++11 -O3")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -std=c++11 -O3")
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # include the sdsl-lite and googletest library
-add_subdirectory("${PROJECT_SOURCE_DIR}/ext/sdsl-lite")
-add_subdirectory("${PROJECT_SOURCE_DIR}/ext/googletest")
+add_subdirectory("${PROJECT_SOURCE_DIR}/ext/libdivsufsort")
 
 # add SDSL includes path
-include_directories("${CMAKE_BINARY_DIR}/ext/sdsl-lite/include")
-include_directories("${CMAKE_BINARY_DIR}/ext/sdsl-lite/external/libdivsufsort-2.0.1/include/")
+include_directories("${CMAKE_BINARY_DIR}/ext/libdivsufsort/include")
 
 # Compile rkaveri - stage 1 filter
 ADD_EXECUTABLE(arakawa.x src/main.cpp src/ReadsDB.cpp src/AppConfig.cpp
-                         src/compute_klcp.cpp)
+                         src/construct_sa.cpp src/compute_klcp.cpp)
 
 #Link SDSL library
-target_link_libraries(arakawa.x sdsl divsufsort divsufsort64)
+target_link_libraries(arakawa.x divsufsort divsufsort64)
 
 # Testing
 # enable_testing()

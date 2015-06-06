@@ -1,69 +1,83 @@
 #include "compute_klcp.hpp"
+#include "construct_sa.hpp"
+#include <cassert>
+#include <iostream>
+#include <iomanip>
 
-void process_ancestor(t_cst& pst, t_node& leafx,
-                      t_node& vancestor, t_node& srcx){
-    // process ancestor
-    unsigned ncount = 0;
-    std::cout << "X" << " " << srcx << " ";
-    for(auto vchild : pst.children(vancestor)){
-        //  if child is not an ancestor or leafx
-        if(vchild == srcx)
-            continue;
-        ncount += 1;
-        // TODO:
-        // get left end and right ends
-        unsigned vlb = pst.lb(vchild), vrb = pst.rb(vchild);
+class LCPOne{
+    const std::string& sx;
+    const std::string& sy;
+    std::string pxy;
+    ivec_t gsa, gisa, glcp;
+    ivec_t lcp_xy[4];
 
-        // get string depth of vparent -> d
-        unsigned d = pst.depth(srcx);
+public:
+    LCPOne(const std::string& x, const std::string& y):sx(x), sy(y){
+        pxy = sx + "$" + sy + "$";
 
-        // get position of vnd's suffix + d + 1's from ISA
-        // binary search between vlb, vrb
+        // construct SA, ISA and LCP
+        construct_sa((const unsigned char*)pxy.c_str(), pxy.size(), gsa);
+        construct_isa(gsa, gisa);
+        construct_lcp_kasai(pxy.c_str(), gsa, gisa, glcp);
+        //construct_lcp_PHI(pxy.c_str(), gsa, glcp);
     }
-    std::cout << pst.id(vancestor) << " " << ncount << " "
-              << std::endl;
-}
+
+    void print(std::ostream& ofs){
+        for(size_t i = 0; i < gsa.size();i++)
+            ofs << std::setw(5) << gsa[i]
+                << std::setw(5) << (i < glcp.size() ? glcp[i] : -1)
+                << "    " << (pxy.c_str() + gsa[i])
+                << std::endl;
+        ofs << std::endl;
+    }
+
+    void compute(){
+        // resize the LCP arrays
+        lcp_xy[0].resize(sx.size()); lcp_xy[1].resize(sx.size());
+        lcp_xy[2].resize(sy.size()); lcp_xy[2].resize(sy.size());
+        // TODO: initialize the list with zero ?
+
+        // TODO:
+        // walk through the suffix array gsa
+        //   collect tuples for each position (going left and right)
+        //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
+        //   sort tuples by i'
+        //   update_lcp with the sorted tuples
+    }
+
+    void update_lcp(){
+        // TODO::
+        // left -> right pass
+        //   initialize src_ptr, tgt_ptr to the first shift
+        //   initialize running min.
+        //   do until we reach the end of list
+        //      - update running min.
+        //      - update target's lcp if it is better than current lcp.
+        //      - move tgt_ptr
+        //      - if tgt_ptr switches string,
+        //           update src_ptr and running min.
+        // right -> left pass
+        //   similar to the above
+    }
+};
 
 void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& param) {
-    const std::string& s1 = rdb.getReadById(i);
-    const std::string& s2 = rdb.getReadById(j);
+    const std::string& sx = rdb.getReadById(i);
+    const std::string& sy = rdb.getReadById(j);
 
-    std::string strpx = s1 + "$" + s2 + "$";
-
-    param.lfs << "\"db_str_len\"  : " << strpx.length() << "," << std::endl;
-    t_cst pst;
-    construct_im(pst, strpx.c_str(), 1);
-
-    // Suffix Tree STATS
-    param.lfs << "\"suffix_tree\" : {" << std::endl
-              << " \t\"INNER_NODES\" : " << pst.nodes() - pst.csa.size()
-              << "," << std::endl
-              << " \t\"LEAVES\"      : " << pst.csa.size() << "," << std::endl
-              << " \t\"ALL_NODES\"   : " << pst.nodes() << std::endl
-              << " }," << std::endl;
-
-    unsigned nans = 0;
-
-    // walk through the leaves
-    for(unsigned i = 1;i <= pst.csa.size(); i++) {
-        t_node leafx = pst.select_leaf(i);
-        t_node vans = pst.parent(leafx), vsrc = leafx;
-
-        while(vans != pst.root()){
-            // process ancestor
-            process_ancestor(pst, leafx, vans, vsrc);
-            vsrc = vans; vans = pst.parent(vsrc); nans++;
-        }
-        // TODO: process root ?
-    }
-    //
-    std::cout << nans << std::endl;
-
+    LCPOne lxy(sx,sy); // construct suffix array
+    lxy.print(std::cout);
+    lxy.compute();
 }
 
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
     // TODO
     unsigned nReads = rdb.getReadsCount();
-    assert(nReads >=2);
-    process_pair(0, 1, rdb, cfg);
+
+    for(unsigned i  = 0; i < nReads; i++){
+        for(unsigned j = i + 1; j < nReads; j++){
+            process_pair(i, j, rdb, cfg);
+            break;
+        }
+    }
 }

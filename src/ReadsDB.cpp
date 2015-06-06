@@ -292,7 +292,7 @@ ReadsDB::ReadsDB(std::string& dirname, std::vector<std::string>& fnames,
             m_readFiles.push_back(*it);
     }
     init(padChar);
-    // writeMeta(std::cout);
+    //writeMeta(std::cout);
 }
 
 // Lookup the file ID corresponding to read ID
