@@ -12,7 +12,7 @@ int main(int argc, char** argv){
     clock_t startTime = clock();
 
     // Build the reads database and get it as a string
-    ReadsDB rdb(acfg.dir, acfg.ifiles, '$');
+    ReadsDB rdb(acfg.dir, acfg.ifiles, 0);
 
     if(rdb.getReadsCount() == 0) {
         std::cout << "\"error\" : \"NO READS AVAILABLE\"" << std::endl;
