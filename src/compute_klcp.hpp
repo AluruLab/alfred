@@ -16,7 +16,7 @@ struct InternalNode{
             (m_leftEnd < other.m_leftEnd) ? true :
             ((m_leftEnd == other.m_leftEnd) ? (m_rightEnd < other.m_rightEnd) :
              false);
-    };
+    }
 
     bool operator== (const InternalNode& other) const{
         return
@@ -54,7 +54,7 @@ struct CandidateMatch{
 
     bool operator< (const CandidateMatch& other) const {
         return( m_errSAPos < other.m_errSAPos );
-    };
+    }
 
     CandidateMatch(int32_t spos, int32_t epos, int32_t src):
         m_startPos(spos), m_errSAPos(epos), m_srcStr(src) { }
@@ -64,7 +64,7 @@ struct CandidateMatch{
     void write(std::ostream& ots, const char *sepStr = "\t") const{
         ots << m_startPos << sepStr << m_errSAPos << sepStr
             << m_srcStr;
-    };
+    }
 
     void emit(std::ostream& ots) const{
         ots << m_startPos << "\t" << m_srcStr;
@@ -101,6 +101,7 @@ private:
     void updateLtoR(InternalNode& iNode, std::vector<CandidateMatch>& candies);
     void updateRtoL(InternalNode& iNode, std::vector<CandidateMatch>& candies);
     int32_t rangeMinLCP(const CandidateMatch& m1, const CandidateMatch& m2);
+    int32_t strPos(int32_t& rid, int32_t& gPos);
 
 public:
     LCPOne(const std::string& x, const std::string& y, AppConfig& cfg);

@@ -77,13 +77,10 @@ void LCPOne::getCandidateMatches(InternalNode& iNode,
         int32_t spos = m_gsa[idx];
         int32_t rs = (spos < m_strLength[0]) ? 0 : 1;
         int32_t epos = (spos + iNode.m_stringDepth + 1);
+        // crossing boundary
         int32_t esa = (rs == 0) ?
             (epos <= (int32_t)m_strLength[0] ? m_gisa[epos] : -1) :
             (epos < (int32_t)m_strXY.size() ? m_gisa[epos] : -1);
-        // crossing boundary
-        //int32_t re = (ep < m_strLength[0]) ? 0 : 1;
-        //if(rs != re)
-        //ep = m_gsa[0];
         CandidateMatch cm(spos, esa, rs);
         candies[i] = cm;
     }
@@ -120,36 +117,44 @@ void LCPOne::compute(){
     // resize the LCP arrays
     for(unsigned i = 0; i < 2; i++)
         for(unsigned j = 0; j  < 2;j++){
-            m_lcpOneXY[i][j].resize(m_strLength[i]);
+            m_lcpOneXY[i][j].resize(m_strLength[i], 0);
         }
 
+    // get all the internal nodes
     std::vector<InternalNode> iNodes;
     getInternalNodes(iNodes);
     // for(auto nit = iNodes.begin(); nit != iNodes.end(); nit++)
     //    (*nit).dwriteln(m_aCfg.lfs);
+    //std::cout << m_rangeMinQuery(4, 6) << std::endl;
+    //pstd::cout << m_rangeMinQuery(5, 8) << std::endl;
 
-    // walk through the suffix array gsa
+    // for each internal node
     for(auto nit = iNodes.begin(); nit != iNodes.end(); nit++){
         (*nit).dwriteln(m_aCfg.lfs);
         //   collect tuples for each position (going left and right)
         //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
         std::vector<CandidateMatch> candies;
         getCandidateMatches(*nit, candies);
-        // update lcp with the sorted tuples
-        //updateLCPOne(*nit, candies);
+        // update lcp using sorted tuples using a double pass
+        updateLCPOne(*nit, candies);
     }
 }
 
 int32_t LCPOne::rangeMinLCP(const CandidateMatch& m1, const CandidateMatch& m2){
-    // TODO: need to test this
     if(m1.m_errSAPos == -1 || m2.m_errSAPos == -1)
         return 0;
     if(m1.m_errSAPos >= m2.m_errSAPos)
         return 0;
     if(m2.m_errSAPos > (int32_t)m_gsa.size())
         return 0;
-    // TODO:: handle 0 and 1 case ?
-    return 1 + m_rangeMinQuery(m_glcp[m1.m_errSAPos + 1], m_glcp[m2.m_errSAPos]);
+    // TODO:: handle 0 and 1 case seperately ?
+    int32_t rpos = m_rangeMinQuery(m1.m_errSAPos + 1,
+                                   m2.m_errSAPos);
+    return 1 + m_glcp[rpos];
+}
+
+int32_t LCPOne::strPos(int32_t& rid, int32_t& gPos){
+    return (rid == 0) ? gPos : (gPos - m_strLength[0] - 1);
 }
 
 void LCPOne::updateLtoR(InternalNode& iNode,
@@ -168,14 +173,24 @@ void LCPOne::updateLtoR(InternalNode& iNode,
         return;
     //   do until we reach the end of list
     while(true){
-        auto tgt = candies[tgt_ptr].m_srcStr,
-            spos = candies[tgt_ptr].m_startPos;
+        //candies[tgt_ptr].write(std::cout);
+        int32_t tgt = candies[tgt_ptr].m_srcStr,
+            tpos = strPos(tgt, candies[tgt_ptr].m_startPos);
         // - update running min.
-        rmin = rangeMinLCP(candies[tgt_ptr], candies[src_ptr]);
+        rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
+        int32_t score = iNode.m_stringDepth + rmin;
+
+        m_aCfg.lfs << "[" << iNode.m_stringDepth << ",\t" << rmin << ",\t";
+        candies[src_ptr].write(m_aCfg.lfs, ",\t");
+        m_aCfg.lfs << ",\t";
+        candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
+        m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLength[tgt]
+                   << ",\t" << score << "]," << std::endl;
+
         // - update target's lcp if it is better than current lcp.
-        if(iNode.m_stringDepth + rmin > m_lcpOneXY[tgt][1][spos]){
-            m_lcpOneXY[tgt][0][spos] = candies[src_ptr].m_startPos;
-            m_lcpOneXY[tgt][1][spos] = iNode.m_stringDepth + rmin;
+        if(score > m_lcpOneXY[tgt][1][tpos]){
+            m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
+            m_lcpOneXY[tgt][1][tpos] = score;
         }
         // - move tgt_ptr
         tgt_ptr += 1;
@@ -185,6 +200,7 @@ void LCPOne::updateLtoR(InternalNode& iNode,
         if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
             src_ptr = tgt_ptr - 1; // update src_ptr
     }
+    std::cout << std::endl;
 }
 
 void LCPOne::updateRtoL(InternalNode& iNode,
@@ -203,14 +219,24 @@ void LCPOne::updateRtoL(InternalNode& iNode,
         return;
     //   do until we reach the end of list
     while(true){
-        auto tgt = candies[tgt_ptr].m_srcStr,
-            spos = candies[tgt_ptr].m_startPos;
+        int32_t tgt = candies[tgt_ptr].m_srcStr,
+            tpos = strPos(tgt, candies[tgt_ptr].m_startPos);
         // - update running min.
-        rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
+        rmin = rangeMinLCP(candies[tgt_ptr], candies[src_ptr]);
+        int32_t score = iNode.m_stringDepth + rmin;
+
+        m_aCfg.lfs << "[, \"R->L\", " << iNode.m_stringDepth << ",\t"
+                   << rmin << ",\t";
+        candies[src_ptr].write(m_aCfg.lfs, ",\t");
+        m_aCfg.lfs << ",\t";
+        candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
+        m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLength[tgt]
+                   << ",\t" << score << "]," << std::endl;
+
         // - update target's lcp if it is better than current lcp.
-        if(iNode.m_stringDepth + rmin > m_lcpOneXY[tgt][1][spos]){
-            m_lcpOneXY[tgt][0][spos] = candies[src_ptr].m_startPos;
-            m_lcpOneXY[tgt][1][spos] = iNode.m_stringDepth + rmin;
+        if(score > m_lcpOneXY[tgt][1][tpos]){
+            m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
+            m_lcpOneXY[tgt][1][tpos] = score;
         }
         // - move tgt_ptr
         tgt_ptr -= 1;
@@ -224,6 +250,12 @@ void LCPOne::updateRtoL(InternalNode& iNode,
 
 void LCPOne::updateLCPOne(InternalNode& iNode,
                           std::vector<CandidateMatch>& candies){
+    m_aCfg.lfs << std::endl;
+    for(auto cm: candies){
+        cm.dwriteln(m_aCfg.lfs);
+    }
+    m_aCfg.lfs << std::endl;
+
     // left -> right pass
     updateLtoR(iNode, candies);
     // right -> left pass
@@ -235,7 +267,7 @@ void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
     const std::string& sy = rdb.getReadById(j);
 
     LCPOne lxy(sx, sy, cfg); // construct suffix array
-    lxy.print(cfg.lfs);
+    lxy.print(std::cout);
     lxy.compute();
 }
 
