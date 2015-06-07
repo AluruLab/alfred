@@ -152,14 +152,14 @@ void ReadsDB::padStrings(const unsigned& mxLength, const char& pChar){
 unsigned ReadsDB::padReads(const char& fillChar){
     m_readMaxLength = findMax();
 
-#ifdef DEBUG
+#ifdef DEBUG_RDB
     // print ONLY for debugging!
     std::cout << "\"NMAX_LEN\" : " << m_readMaxLength << "," << std::endl
               << "\"NMIN_LEN\" : " << findMin() << "," << std::endl;
 #endif
     padStrings(m_readMaxLength + 1, fillChar);
 
-#ifdef DEBUG
+#ifdef DEBUG_RDB
     // print ONLY for debugging!
     std::cout << "\"PMAX_LEN\" : " << findMax() << "," << std::endl
               << "\"PMIN_LEN\" : " << findMin() << "," << std::endl;
@@ -197,7 +197,7 @@ void ReadsDB::writeMeta(std::ostream& ots){
 
     ots << "\"total_reads\" : " << m_nReads
         << "," << std::endl;
-#ifdef DEBUG
+#ifdef DEBUG_RDB
     ots << "\"n_read_counts\" : " << m_readCounts.size()
         << "," << std::endl;
 #endif
@@ -210,7 +210,7 @@ void ReadsDB::writeMeta(std::ostream& ots){
     ots << "\"read_counts\" : [" << std::endl;
     for (unsigned i = 0; i < m_readCounts.size(); i++) {
         ots << " \t[" << i << "," << m_readCounts[i]
-#ifdef DEBUG
+#ifdef DEBUG_RDB
             << "," << m_readLengths[i].size()
             << "," <<  m_readCtsPfxSum[i]
 #endif

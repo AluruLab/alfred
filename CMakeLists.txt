@@ -13,7 +13,7 @@ set(SDSL_SOURCE_DIR "${PROJECT_SOURCE_DIR}/ext/sdsl-lite")
 
 # flags
 set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # include the sdsl-lite and googletest library
@@ -23,8 +23,8 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/ext/libdivsufsort")
 include_directories("${CMAKE_BINARY_DIR}/ext/libdivsufsort/include")
 
 # Compile rkaveri - stage 1 filter
-ADD_EXECUTABLE(arakawa.x src/main.cpp src/ReadsDB.cpp src/AppConfig.cpp
-                         src/bits.cpp src/construct_sa.cpp src/compute_klcp.cpp)
+ADD_EXECUTABLE(arakawa.x src/bits.cpp src/ReadsDB.cpp src/AppConfig.cpp
+                         src/construct_sa.cpp src/compute_klcp.cpp src/main.cpp)
 
 #Link SDSL library
 target_link_libraries(arakawa.x divsufsort divsufsort64)

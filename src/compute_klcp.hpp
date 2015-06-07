@@ -83,6 +83,34 @@ struct CandidateMatch{
 
 };
 
+class UpperBoundCheck{
+public:
+    bool operator()(const int32_t& value, const int32_t& bound) const{
+        return (value < bound);
+    }
+};
+
+class LowerBoundCheck{
+public:
+    bool operator()(const int32_t& value, const int32_t& bound) const{
+        return (value > bound);
+    }
+};
+
+class IncrPointer{
+public:
+    void operator()(int32_t& value){
+        value += 1;
+    }
+};
+
+class DecrPointer{
+public:
+    void operator()(int32_t& value){
+        value -= 1;
+    }
+};
+
 class LCPOne{
 private:
     AppConfig& m_aCfg;
@@ -101,7 +129,62 @@ private:
     void updateLtoR(InternalNode& iNode, std::vector<CandidateMatch>& candies);
     void updateRtoL(InternalNode& iNode, std::vector<CandidateMatch>& candies);
     int32_t rangeMinLCP(const CandidateMatch& m1, const CandidateMatch& m2);
-    int32_t strPos(int32_t& rid, int32_t& gPos);
+    int32_t strPos(const int32_t& rid, const int32_t& gPos);
+
+    template<typename BoundChecker, typename NextPointer>
+    void updatePass(int32_t src_ptr, int32_t tgt_ptr,
+                    const int32_t& tgt_bound,
+                    const InternalNode& iNode,
+                    const std::vector<CandidateMatch>& candies
+#ifdef DEBUG
+                    ,
+                    const std::string& dbgStr
+#endif
+                    ) {
+        BoundChecker bound_check;
+        NextPointer next_ptr;
+        int32_t rmin = 0;
+        // move the pointer until we reach the first src, target
+        while(bound_check(tgt_ptr, tgt_bound)){
+            if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
+                break;
+            src_ptr = tgt_ptr;
+            next_ptr(tgt_ptr);
+        }
+        // if not within the bounds leave
+        if(!bound_check(tgt_ptr, tgt_bound) ||
+           candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+            return;
+        while(true){
+            int32_t tgt = candies[tgt_ptr].m_srcStr,
+                tpos = strPos(tgt, candies[tgt_ptr].m_startPos);
+            // - update running min.
+            rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
+            int32_t score = iNode.m_stringDepth + rmin;
+#ifdef DEBUG
+            m_aCfg.lfs << "\t[ \"" << dbgStr << "\",\t"
+                       << iNode.m_stringDepth << ",\t"
+                       << rmin << ",\t";
+            candies[src_ptr].write(m_aCfg.lfs, ",\t");
+            m_aCfg.lfs << ",\t";
+            candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
+            m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLength[tgt]
+                       << ",\t" << score << "]," << std::endl;
+#endif
+            // - update target's lcp if it is better than current lcp.
+            if(score > m_lcpOneXY[tgt][1][tpos]){
+                m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
+                m_lcpOneXY[tgt][1][tpos] = score;
+            }
+            int32_t prev_tgt = tgt_ptr;
+            next_ptr(tgt_ptr);
+            if(!bound_check(tgt_ptr, tgt_bound))
+                break;
+            // - if tgt_ptr switches string,
+            if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+                src_ptr = prev_tgt; // update src_ptr
+        }
+    }
 
 public:
     LCPOne(const std::string& x, const std::string& y, AppConfig& cfg);
