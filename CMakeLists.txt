@@ -24,7 +24,7 @@ include_directories("${CMAKE_BINARY_DIR}/ext/libdivsufsort/include")
 
 # Compile rkaveri - stage 1 filter
 ADD_EXECUTABLE(arakawa.x src/main.cpp src/ReadsDB.cpp src/AppConfig.cpp
-                         src/construct_sa.cpp src/compute_klcp.cpp)
+                         src/bits.cpp src/construct_sa.cpp src/compute_klcp.cpp)
 
 #Link SDSL library
 target_link_libraries(arakawa.x divsufsort divsufsort64)

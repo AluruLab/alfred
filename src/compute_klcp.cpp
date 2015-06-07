@@ -3,17 +3,19 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 LCPOne::LCPOne(const std::string& sx, const std::string& sy,
                AppConfig& cfg) : m_aCfg(cfg){
     m_strXY = sx + "#" + sy + "$";
     m_strLength[0] = sx.size(); m_strLength[1] = sy.size();
-
-    // construct SA, ISA and LCP
+    // construct SA, ISA, LCP and RMQ
     construct_sa((const unsigned char*)m_strXY.c_str(), m_strXY.size(), m_gsa);
     construct_isa(m_gsa, m_gisa);
     construct_lcp_kasai(m_strXY.c_str(), m_gsa, m_gisa, m_glcp);
     //construct_lcp_PHI(pxy.c_str(), gsa, glcp);
+    m_rangeMinQuery =
+        std::move(rmq_support_sparse_table<ivec_t, true, ivec_t>(&m_glcp));
 }
 
 void LCPOne::print(std::ostream& ofs){
@@ -25,112 +27,207 @@ void LCPOne::print(std::ostream& ofs){
             << std::endl;
 }
 
-int32_t LCPOne::getLeftBound(const int32_t& curPos){
+int32_t LCPOne::getLeftEnd(const int32_t& curPos){
     if(curPos + 1 >= (int32_t)m_gsa.size()) // reached the end
         return -1;
     if(curPos == 2)
         return curPos;
-    int32_t bpos;
+    int32_t lpos;
     int32_t idx = curPos, idxLCP = m_glcp[idx + 1], srcLCP = idxLCP;
     while(idxLCP >= srcLCP){
-        bpos = idx;
+        lpos = idx;
         idx -= 1;
         if(idx < 2)
             break;
         idxLCP = m_glcp[idx + 1];
     }
-    return bpos;
+    return lpos;
 }
 
-int32_t LCPOne::getRightBound(const int32_t& curPos){
+int32_t LCPOne::getRightEnd(const int32_t& curPos){
     if(curPos + 1 >= (int32_t)m_gsa.size()) // reached the end
         return -1;
-    // compute epos
-    int32_t epos;
+    // compute rpos
+    int32_t rpos;
     int32_t idx = curPos + 1, idxLCP = m_glcp[idx], srcLCP = idxLCP;
     while(idxLCP >= srcLCP){
-        epos = idx;
+        rpos = idx;
         idx += 1;
         if(idx >= (int32_t)m_gsa.size())
             break;
         idxLCP = m_glcp[idx];
     }
-    return epos;
+    return rpos;
 }
 
-void LCPOne::makeCandidates(const int32_t& beginPos, const int32_t& endPos,
-                            const int32_t& depth,
-                            std::vector<CandidateMatch>& candies){
-    if(beginPos == -1 || endPos == -1)
+void LCPOne::getCandidateMatches(InternalNode& iNode,
+                           std::vector<CandidateMatch>& candies){
+
+    if(iNode.m_leftEnd == -1 || iNode.m_rightEnd == -1)
         return;
 
-    candies.resize(endPos - beginPos + 1);
+    assert(iNode.m_rightEnd > iNode.m_leftEnd);
+    candies.clear();
+    candies.resize(iNode.m_rightEnd - iNode.m_leftEnd + 1);
 
-    for(int32_t idx = beginPos, i = 0; idx <= endPos; idx++, i++){
-        int32_t sp = m_gsa[idx];
-        int32_t rs = (sp < m_strLength[0]) ? 0 : 1;
-        int32_t ep = m_gisa[sp + depth + 1];
+    //   collect tuples for each position (going left and right)
+    //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
+    for(int32_t idx = iNode.m_leftEnd, i = 0;
+            idx <= iNode.m_rightEnd; idx++, i++){
+        int32_t spos = m_gsa[idx];
+        int32_t rs = (spos < m_strLength[0]) ? 0 : 1;
+        int32_t epos = (spos + iNode.m_stringDepth + 1);
+        int32_t esa = (rs == 0) ?
+            (epos <= (int32_t)m_strLength[0] ? m_gisa[epos] : -1) :
+            (epos < (int32_t)m_strXY.size() ? m_gisa[epos] : -1);
+        // crossing boundary
         //int32_t re = (ep < m_strLength[0]) ? 0 : 1;
-        //if(rs != re) // crossing boundary
+        //if(rs != re)
         //ep = m_gsa[0];
-        CandidateMatch cm(sp, ep, rs);
+        CandidateMatch cm(spos, esa, rs);
         candies[i] = cm;
     }
-}
-
-void LCPOne::getCandidates(int32_t curPos, std::vector<CandidateMatch>& candies){
-
-    int32_t
-        beginPos = getLeftBound(curPos),
-        endPos = getRightBound(curPos);
-
-    if(beginPos == -1 || endPos == -1)
-        return;
-
-    int32_t depth = m_glcp[curPos + 1];
-    m_aCfg.lfs << " [\"CDS\",\t" << curPos << ",\t" << depth
-               << ",\t" << beginPos << ",\t" << endPos << "]," << std::endl;
-
-    candies.clear();
-    makeCandidates(beginPos, endPos, depth, candies);
+    //   sort tuples by i'
+    std::sort(candies.begin(), candies.end());
     for(auto cm : candies)
         cm.dwriteln(m_aCfg.lfs);
+}
+
+void LCPOne::getInternalNodes(std::vector<InternalNode>& iNodes){
+    iNodes.resize(m_gsa.size() - 2);
+    // Get all the internal nodes
+    for(int32_t i = 2; i < (int32_t)m_gsa.size(); i++){
+        iNodes[i-2].m_leftEnd = getLeftEnd(i);
+        iNodes[i-2].m_rightEnd = getRightEnd(i);
+        iNodes[i-2].m_stringDepth = ((i + 1) < (int32_t)m_glcp.size()) ?
+            m_glcp[(i + 1)] : -1;
+    }
+
+    // Eliminate duplicates
+    std::sort(iNodes.begin(), iNodes.end());
+
+    unsigned j = 0;
+    for(unsigned i = 1; i < iNodes.size(); i++){
+        if(iNodes[i] == iNodes[j])
+            continue;
+        j += 1;
+        iNodes[j] = iNodes[i];
+    }
+    iNodes.resize(j+1);
 }
 
 void LCPOne::compute(){
     // resize the LCP arrays
     for(unsigned i = 0; i < 2; i++)
         for(unsigned j = 0; j  < 2;j++){
-            m_lcpXY[i][j].resize(m_strLength[i]);
+            m_lcpOneXY[i][j].resize(m_strLength[i]);
         }
 
-    // TODO: initialize the list with zero ?
+    std::vector<InternalNode> iNodes;
+    getInternalNodes(iNodes);
+    // for(auto nit = iNodes.begin(); nit != iNodes.end(); nit++)
+    //    (*nit).dwriteln(m_aCfg.lfs);
 
-    // TODO:
     // walk through the suffix array gsa
-    for(int32_t i = 2; i < (int32_t)m_gsa.size(); i++){
-        std::vector<CandidateMatch> candies;
-        getCandidates(i, candies);
+    for(auto nit = iNodes.begin(); nit != iNodes.end(); nit++){
+        (*nit).dwriteln(m_aCfg.lfs);
         //   collect tuples for each position (going left and right)
         //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
-        //   sort tuples by i'
-        //   update_lcp with the sorted tuples
+        std::vector<CandidateMatch> candies;
+        getCandidateMatches(*nit, candies);
+        // update lcp with the sorted tuples
+        //updateLCPOne(*nit, candies);
     }
 }
 
-void LCPOne::updateLCP(){
-        // TODO::
-        // left -> right pass
-        //   initialize src_ptr, tgt_ptr to the first shift
-        //   initialize running min.
-        //   do until we reach the end of list
-        //      - update running min.
-        //      - update target's lcp if it is better than current lcp.
-        //      - move tgt_ptr
-        //      - if tgt_ptr switches string,
-        //           update src_ptr and running min.
-        // right -> left pass
-        //   similar to the above
+int32_t LCPOne::rangeMinLCP(const CandidateMatch& m1, const CandidateMatch& m2){
+    // TODO: need to test this
+    if(m1.m_errSAPos == -1 || m2.m_errSAPos == -1)
+        return 0;
+    if(m1.m_errSAPos >= m2.m_errSAPos)
+        return 0;
+    if(m2.m_errSAPos > (int32_t)m_gsa.size())
+        return 0;
+    // TODO:: handle 0 and 1 case ?
+    return 1 + m_rangeMinQuery(m_glcp[m1.m_errSAPos + 1], m_glcp[m2.m_errSAPos]);
+}
+
+void LCPOne::updateLtoR(InternalNode& iNode,
+                        std::vector<CandidateMatch>& candies){
+    // left -> right pass
+    //   initialize src_ptr, tgt_ptr to the first shift
+    int32_t src_ptr = 0, tgt_ptr = 1, rmin = 0;
+    while(tgt_ptr < (int32_t)candies.size()){
+        if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
+            break;
+        tgt_ptr += 1;
+    }
+    // nothing to do
+    if(tgt_ptr >= (int32_t)candies.size() ||
+       candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+        return;
+    //   do until we reach the end of list
+    while(true){
+        auto tgt = candies[tgt_ptr].m_srcStr,
+            spos = candies[tgt_ptr].m_startPos;
+        // - update running min.
+        rmin = rangeMinLCP(candies[tgt_ptr], candies[src_ptr]);
+        // - update target's lcp if it is better than current lcp.
+        if(iNode.m_stringDepth + rmin > m_lcpOneXY[tgt][1][spos]){
+            m_lcpOneXY[tgt][0][spos] = candies[src_ptr].m_startPos;
+            m_lcpOneXY[tgt][1][spos] = iNode.m_stringDepth + rmin;
+        }
+        // - move tgt_ptr
+        tgt_ptr += 1;
+        if(tgt_ptr >= (int32_t)candies.size())
+            break;
+        // - if tgt_ptr switches string,
+        if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+            src_ptr = tgt_ptr - 1; // update src_ptr
+    }
+}
+
+void LCPOne::updateRtoL(InternalNode& iNode,
+                        std::vector<CandidateMatch>& candies){
+    //   initialize src_ptr, tgt_ptr to the first shift
+    int32_t src_ptr = candies.size() - 1,
+        tgt_ptr = src_ptr - 1, rmin = 0;
+    while(tgt_ptr > 0){
+        if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
+            break;
+        tgt_ptr -= 1;
+    }
+    // nothing to do
+    if(tgt_ptr < 0 ||
+       candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+        return;
+    //   do until we reach the end of list
+    while(true){
+        auto tgt = candies[tgt_ptr].m_srcStr,
+            spos = candies[tgt_ptr].m_startPos;
+        // - update running min.
+        rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
+        // - update target's lcp if it is better than current lcp.
+        if(iNode.m_stringDepth + rmin > m_lcpOneXY[tgt][1][spos]){
+            m_lcpOneXY[tgt][0][spos] = candies[src_ptr].m_startPos;
+            m_lcpOneXY[tgt][1][spos] = iNode.m_stringDepth + rmin;
+        }
+        // - move tgt_ptr
+        tgt_ptr -= 1;
+        if(tgt_ptr < 0)
+            break;
+        // - if tgt_ptr switches string,
+        if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+            src_ptr = tgt_ptr + 1; // update src_ptr
+    }
+}
+
+void LCPOne::updateLCPOne(InternalNode& iNode,
+                          std::vector<CandidateMatch>& candies){
+    // left -> right pass
+    updateLtoR(iNode, candies);
+    // right -> left pass
+    updateRtoL(iNode, candies);
 }
 
 void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
