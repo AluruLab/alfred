@@ -9,13 +9,13 @@
  * \param sa Reference to a RandomAccessContainer which will contain the result of the calculation.
  * \pre sa.size() has to be equal to len.
  */
-void construct_sa(const unsigned char* text, size_t len, ivec_t& sa)
+void construct_sa(const unsigned char* text, ivec_t::size_type len, ivec_t& sa)
 {
     sa.resize(len);
     divsufsort(text, (int32_t*)(&sa[0]), len);
 }
 
-void construct_sa64(const unsigned char* text, size_t len, ivec64_t& sa)
+void construct_sa64(const unsigned char* text, ivec_t::size_type len, ivec64_t& sa)
 {
     sa.resize(len);
     divsufsort64(text, (int64_t*)(&sa[0]), len);

@@ -25,8 +25,8 @@
 #include "defs.hpp"
 #include <cassert>
 
-void construct_sa(const unsigned char* text, size_t len, ivec_t& sa);
-void construct_sa64(const unsigned char* text, size_t len, ivec64_t& sa);
+void construct_sa(const unsigned char* text, ivec_t::size_type len, ivec_t& sa);
+void construct_sa64(const unsigned char* text, ivec_t::size_type len, ivec64_t& sa);
 
 template<typename int_vector>
 void construct_isa(const int_vector& sa, int_vector& isa){
