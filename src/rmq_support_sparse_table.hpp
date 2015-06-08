@@ -166,15 +166,15 @@ class rmq_support_sparse_table
         //     return written_bytes;
         // }
 
-        void load(std::istream& in, const t_rac* v) {
-            set_vector(v);
-            read_member(m_k, in);
-            if (m_k >0) {
-                m_table.resize(m_k);
-                for (size_type i=0; i < m_k; ++i)
-                    m_table[i].load(in);
-            }
-        }
+        // void load(std::istream& in, const t_rac* v) {
+        //     set_vector(v);
+        //     read_member(m_k, in);
+        //     if (m_k >0) {
+        //         m_table.resize(m_k);
+        //         for (size_type i=0; i < m_k; ++i)
+        //             m_table[i].load(in);
+        //     }
+        // }
 };
 
 #endif
