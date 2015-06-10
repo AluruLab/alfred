@@ -27,9 +27,10 @@
 
 * Definitions and Notations
 ** Notations
+  - I use $0$ based indexing in this document.
   - $X$ and $Y$ are the strings
-  - $SA$, $ISA$ is the suffix array and inverse suffix arrays
-    constructed for the string $R$ = $X$ + $\#$ + $Y$ + \$.
+  - For the string $R$ = $X$ + $\#$ + $Y$ + \$, $SA$, $ISA$ is the
+    suffix array and inverse suffix arrays respectively.
   - Length of $SA$, $ISA$ is $|R|$
   - $LCP$ is constructed for $R$. $LCP[i]$ is least common prefix of
     suffixes corresponding to $SA[i]$ and $SA[i - 1]$. $LCP[0]$ is set
@@ -39,22 +40,22 @@
 
 * Implementation
 
-** Overview
+** Top-level View
   - Algorithm does a depth-first search of suffixes with errors.
     When we allow one error, the search goes down a level deep.
   - At search depth 0, we start with all suffixes of $R$, as we go down
     the levels we consider a subset of suffixes of $R$, constructed from
     the suffixes at the previous level.
-  - Search continues until we reach a depth of level $k$, and at the
-    level $k$ we update $LCP_k$ arrays using the suffixes collected at
-    the current search frontier. We continue the depth-first search
-    until we run out of suffixes.
+  - Search continues until we reach a depth of level $k$, and at which
+    point we update $LCP_k$ using the suffixes collected at the current
+    search frontier. We continue the depth-first search until we run out
+    of suffixes.
 
 ** Suffix Representation
   - We consider the suffixes under the context of a specific internal
     node $u$. $u$ is either from a suffix tree (at search depth 0) or a
     suffix trie (at search depths $1, \ldots, k-1$).
-  - We represent the suffixes with the following tuple
+  - We represent the suffixes of the trie using the following tuple
           \[(c, c', src)\]
 
     where
@@ -63,8 +64,11 @@
        $1 + \proc{String-Depth}(u)$
      - $src$ is the source string either 0 or 1, 0 corresponding to $X$
        and 1 corresponding to $Y$
+  - In this document, I use access of a specific element in the tuple as
+    function. For example, to access field $c$ of the suffix $r$, I
+    write $c(r)$.
 
-** Internal Representation
+** Internal Node Representation
   - We construct suffixes at search level $j$ by chopping prefixes of
     the suffixes under at search level $j-1$.
   - At level $j$, we represent an interal node $u$ (both for the suffix
@@ -72,114 +76,152 @@
     tuple
        \[(bp, ep, d, \delta )\]
     where
-     - $bp$ and $ep$ are the start and end indices in the sorted
-        array of suffixes. At level 0, this is the suffix array of $R$,
-        and this $bp$ and $ep$ are indices of suffix array. At level
-        $1,\ldots,k-1$, they the suffixes selected from $R$
+     - $bp$ and $ep$ are the start and end indices in the sorted array
+       of suffixes. At level 0, this is the suffix array of $R$, and
+       this $bp$ and $ep$ are indices of suffix array. At level
+       $1,\ldots,k-1$, they the some subset of suffixes selected from
+       $R$
      - $d$ string depth of the internal node
-     - $\delta$ the sum of chopped of lengths at levels $0, \ldots,
-       j-1$.
+     - $\delta$ the sum of chopped of lengths at the levels below $0,
+       \ldots, j-1$.
 
-** Suffix Aarray Notes
-  - Since $\# <$ \$ $< \{A,\ldots, Z\}$, in suffix array the first and
-    second strings are \#$Y$ and \$ -- the end of first and second
-    strings respectively.
+** Suffix Array of $R$
+  - Since $\# <$ \$ $< \{A,\ldots, Z\}$, in $SA[0]$ and $S[1]$ are $\#Y$
+    and \$ -- the end of first and second strings -- respectively.
   - As we chop off suffixes and reach towards the end of the strings, we
     end up in either at the first or second entry of the suffix
-    array. We ignore these suffixes at next level.
+    array. We ignore these suffixes, when we proceed to the next search
+    level.
 
-** Internal Nodes of Suffix Tree
+** Compute $LCP_k$
+  - Main function of computing $LCP_k$, each function being called is
+    written in the later slides.
+
   \begin{codebox}
-  \Procname{$\proc{SA-SubTree-Of}(leaf)$}
-    \li $LCP[leaf + 1]$ corresponds to $(leaf, leaf + 1)$
-    \li $sp \gets ep \gets leaf$
-    \li \While $sp > 2$ and $LCP[sp + 1] >= LCP[leaf + 1]$
-        \Do
-    \li    Decrement $sp$
-        \End
-    \li \While $ep < |SA|$ and $LCP[ep + 1] >= LCP[leaf + 1]$
-        \Do
-    \li    Increment $ep$
-        \End
-    \li \Return $(sp + 1, ep - 1, LCP[leaf + 1], 0)$
+  \Procname{$\proc{Compute-LCPK}(k)$}
+  \li $U \gets \proc{SA-Internal-Nodes}()$
+  \li \For $i \gets 0 \To |U| - 1$
+  \li \Do $S_0 \gets \proc{SA-Chop-Suffix}(U[i])$
+  \li   $\proc{Recursive-Compute-LCPK}(U[i], S_0, k - 1)$
+       \End
   \end{codebox}
 
+  \begin{codebox}
+  \Procname{$\proc{Recursive-Compute-LCPK}(u, S_{j-1}, k)$}
+  \li \If $k = 0$
+  \li \Do  $\proc{Update-LCPK}(u, S_{j - 1})$
+  \li     \Return
+      \End
+  \li $U_j \gets \proc{Trie-Internal-Nodes}(u, S_{j - 1})$
+  \li \For $i \gets 0 \To |U_{j}| - 1$
+  \li \Do $S_j \gets \proc{Trie-Chop-Suffix}(U_{j}[i], S_{j - 1})$
+  \li   $\proc{Recursive-Compute-LCPK}(U_{j}[i], S_j, k - 1)$
+       \End
+  \end{codebox}
+
+** Selecting Internal Nodes from $SA$ or Trie
+  - Representation of internal node is given in slide
+     [[Internal Node Representation]]
   \begin{codebox}
   \Procname{$\proc{SA-Internal-Nodes}()$}
-    \li Initialize $nodes$ to be of size $|SA|$
+    \li Initialize $U_0$ to be of an array of Internal nodes of size $|SA|$
     \li \For $leaf \gets 0$  \To $|SA| - 1$
          \Do
-    \li  $nodes[leaf] \gets \proc{SA-SubTree-Of}(leaf)$
+    \li  $U_0[leaf] \gets \proc{SA-SubTree}(leaf)$
         \End
-    \li Sort $nodes$ and remove duplicates
+    \li Sort and remove duplicates in $U_0$
+    \li \Return $U_0$
   \end{codebox}
 
-** Internal Nodes of Suffix Trie
+  \begin{codebox}
+  \Procname{$\proc{Trie-Internal-Nodes}(u, S_{j - 1})$}
+    \li Initialize $U_j$ to be an array of Internal nodes of size $|S_{j-1}|$
+    \li \For $leaf \gets 0$  \To $|S_{j-1}| - 1$
+         \Do
+    \li  $U_j[leaf] \gets \proc{Trie-SubTree}(u, leaf, S_{j - 1})$
+        \End
+    \li Sort and remove duplicates in $U_j$
+    \li \Return $U_j$
+  \end{codebox}
 
-  - The input is the internal node of the format given at
-  - The input $S_j$ are sorted suffixes at level $j$, represented as
-    shown in [[Suffix Representation]]
+
+** Internal Nodes of Leaf in Suffix Tree
+  \begin{codebox}
+  \Procname{$\proc{SA-SubTree}(leaf)$}
+    \li $LCP[leaf + 1]$ corresponds to $(leaf, leaf + 1)$
+    \li $sp \gets ep \gets leaf$
+    \li \While $sp > 2$
+        \Do
+    \li    \If $LCP[sp + 1] >= LCP[leaf + 1]$
+    \li    \Then  \kw{break} \End
+    \li    Decrement $sp$
+        \End
+    \li \While $ep < |SA| - 1$
+        \Do
+    \li    \If $LCP[ep + 1] >= LCP[leaf + 1]$
+    \li     \Then  \kw{break} \End
+    \li    Increment $ep$
+        \End
+    \li \Return $(sp, ep, LCP[leaf + 1], 0)$
+  \end{codebox}
+
+** Internal Nodes of a Leaf in Suffix Trie
+
+  - The input $u$, internal node at a level $j - 1$ (slide  [[Internal Node Representation]])
+  - The input $S_j$, sorted suffixes at level $j - 1$ (slide [[Suffix Representation]])
 
   \begin{codebox}
-  \Procname{$\proc{Trie-SubTree-Of}(leaf, u, S_j)$}
-    \li $l_x \gets RMQ(c'(S_j[leaf]) + 1, c'(S_j[leaf+1]) )$
+  \Procname{$\proc{Trie-SubTree}(u, leaf, S_{j - 1})$}
+    \li $l_x \gets RMQ(c'(S_{j - 1}[leaf]) + 1, c'(S_{j-1}[leaf+1]) )$
     \li $sp \gets ep \gets leaf$
     \li \While $sp > 0$
         \Do
-   \li   \If $RMQ(c'(S_j[leaf]) + 1, c'(S_j[leaf+1]) ) >= lx$
-    \zi        \Do break
+   \li   \If $RMQ(c'(S_{j - 1}[sp]) + 1, c'(S_{j - 1}[sp+1]) ) >= lx$
+    \zi        \Do \kw{break}
             \End
     \li  Decrement $sp$
         \End
-    \li \While $ep < |S_j|$
+    \li \While $ep < |S_{j - 1}|$
         \Do
-   \li   \If $RMQ(c'(S_j[leaf]) + 1, c'(S_j[leaf+1]) ) >= lx$
-    \zi        \Do break
+   \li   \If $RMQ(c'(S_{j-1}[ep]) + 1, c'(S_{j - 1}[ep+1]) ) >= lx$
+    \zi        \Do \kw{break}
             \End
     \li    Increment $ep$
         \End
-    \li \Return $(sp + 1, ep - 1, l_x, d(u) + \delta(u) + 1 )$
+    \li \Return $(sp, ep, l_x, d(u) + \delta(u) + 1 )$
   \end{codebox}
 
 
-** Internal Nodes of Suffix Trie
-  \begin{codebox}
-  \Procname{$\proc{Trie-Internal-Nodes}()$}
-    \li Initialize $nodes$ to be of size $|SA|$
-    \li \For $leaf \gets 0$  \To $|SA| - 1$
-         \Do
-    \li  $nodes[leaf] \gets \proc{Trie-SubTree-Of}(leaf)$
-        \End
-    \li Sort $nodes$ and remove duplicates
-  \end{codebox}
-
-** Chop Suffixes w.r.t Internal Node - Suffix Array
+** Chop Suffixes w.r.t Internal Node $u$ - Suffix Array
   \begin{codebox}
   \Procname{$\proc{SA-Chop-Suffix}(u)$}
-  \li Initialize $S_1$ array of size $ep(u) - bp(u) + 1$
+  \li Initialize $S_0$ array of size $ep(u) - bp(u) + 1$
   \li \For $i \gets bp(u) \To ep(u)$
-  \li \Do $c(S_1[i]) \gets SA[i]$
+  \li \Do $c(S_0[i]) \gets SA[i]$
   \li     \If $SA[i] < |X|$
-  \li     \Then  $src(S_1[i]) \gets 0$
+  \li     \Then  $src(S_0[i]) \gets 0$
   \zi      \Else
-  \li      $src(S_1[i]) \gets 1$
+  \li      $src(S_0[i]) \gets 1$
          \End
-  \li    $c'(S_1[i]) \gets ISA[c + d_u + 1]$
+  \li    $c'(S_0[i]) \gets ISA[c + d_u + 1]$
       \End
+  \li Remove invalid suffixes in $S_0$ (indices beyond $|X| - 1$ or $|Y| - 1$)
+  \li Sort $S_0$ based on $c'$
+  \li \Return $S_0$
   \end{codebox}
 
 
-** Chop Suffixes w.r.t Internal Node - Trie
+** Chop Suffixes w.r.t Internal Node $u$ - Trie
   \begin{codebox}
-  \Procname{$\proc{Trie-Chop-Suffix}(u)$}
-  \li Initialize $S_1$ array of size $ep(u) - bp(u) + 1$
+  \Procname{$\proc{Trie-Chop-Suffix}(u, S_{j - 1})$}
+  \li Initialize $S_j$ array of size $ep(u) - bp(u) + 1$
   \li \For $i \gets bp(u) \To ep(u)$
-  \li \Do $c(S_1[i]) \gets SA[i]$
-  \li     \If $SA[i] < |X|$
-  \li     \Then  $src(S_1[i]) \gets 0$
-  \zi      \Else
-  \li      $src(S_1[i]) \gets 1$
-         \End
-  \li    $c'(S_1[i]) \gets ISA[c + d_u + 1]$
+  \li \Do $src(S_j[i]) \gets src(S_{j-1}[i])$
+  \li     $epx \gets c'(S_{j - 1}[i])$
+  \li     $c(S_j[i]) \gets SA[epx]$
+  \li     $c'(S_j[i]) \gets ISA[SA[epx] + d_u + 1]$
       \End
+  \li Remove invalid suffixes in $S_j$ (indices beyond $|X| - 1$ or $|Y| - 1$)
+  \li Sort $S_j$ based on $c'$
+  \li \Return $S_j$
   \end{codebox}

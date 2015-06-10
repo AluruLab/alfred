@@ -215,7 +215,7 @@ private:
     void compute0();
 public:
     LCPOne(const std::string& x, const std::string& y,
-           AppConfig& cfg, int kv = 0);
+           AppConfig& cfg, int kv = 1);
     void print(std::ostream& ofs);
     void compute();
 };

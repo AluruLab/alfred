@@ -140,7 +140,7 @@ int32_t LCPOne::rangeMinLCP(const L1Suffix& m1, const L1Suffix& m2){
     return rangeMinLCP(m1.m_errSAPos, m2.m_errSAPos);
 }
 
-xoint32_t LCPOne::strPos(const InternalNode& uNode,
+int32_t LCPOne::strPos(const InternalNode& uNode,
                          const L1Suffix& sfx){
     return sfx.m_startPos - uNode.m_delta - m_shiftPos[sfx.m_srcStr];
 }
@@ -333,7 +333,7 @@ void LCPOne::compute0(){
 
 void LCPOne::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
                       int searchLevel){
-    if(searchLevel == m_kv - 1){
+    if(searchLevel == 0){
         // update LCP array
         updateLCPOne(uNode, uLeaves);
         return;
@@ -343,7 +343,7 @@ void LCPOne::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
     for(auto nit = trieNodes.begin(); nit != trieNodes.end(); nit++){
         std::vector<L1Suffix> trieLeaves;
         chopSuffixesK(*nit, uLeaves, trieLeaves);
-        computeK(*nit, trieLeaves, searchLevel + 1);
+        computeK(*nit, trieLeaves, searchLevel - 1);
     }
 }
 
@@ -368,7 +368,7 @@ void LCPOne::computeK(){
         std::vector<L1Suffix> candies;
         chopSuffixes0(*nit, candies);
         // update lcp using sorted tuples using a double pass
-        computeK(*nit, candies, 1);
+        computeK(*nit, candies, m_kv - 1);
     }
 }
 
