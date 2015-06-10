@@ -7,30 +7,32 @@
 #include "rmq_support_sparse_table.hpp"
 
 struct InternalNode{
-    int32_t m_leftEnd;
-    int32_t m_rightEnd;
+    int32_t m_leftBound;
+    int32_t m_rightBound;
     int32_t m_stringDepth;
+    int32_t m_delta;
 
     bool operator< (const InternalNode& other) const {
         return
-            (m_leftEnd < other.m_leftEnd) ? true :
-            ((m_leftEnd == other.m_leftEnd) ? (m_rightEnd < other.m_rightEnd) :
+            (m_leftBound < other.m_leftBound) ? true :
+            ((m_leftBound == other.m_leftBound) ? (m_rightBound < other.m_rightBound) :
              false);
     }
 
     bool operator== (const InternalNode& other) const{
         return
-            (m_leftEnd == other.m_leftEnd) &&
-            (m_rightEnd == other.m_rightEnd) &&
+            (m_leftBound == other.m_leftBound) &&
+            (m_rightBound == other.m_rightBound) &&
             (m_stringDepth == other.m_stringDepth);
     }
 
     InternalNode(){
-        m_leftEnd = m_rightEnd = -1;
+        m_leftBound = m_rightBound = -1;
+        m_stringDepth = m_delta = 0;
     }
 
     void write(std::ostream& ots, const char *sepStr = "\t") const{
-        ots << m_leftEnd << sepStr << m_rightEnd << sepStr
+        ots << m_leftBound << sepStr << m_rightBound << sepStr
             << m_stringDepth;
     };
 
@@ -47,19 +49,19 @@ struct InternalNode{
 
 };
 
-struct CandidateMatch{
+struct L1Suffix{
     int32_t m_startPos; // starting position
     int32_t m_errSAPos; // position after one error's SA loc.
     int32_t m_srcStr;   // source string
 
-    bool operator< (const CandidateMatch& other) const {
+    bool operator< (const L1Suffix& other) const {
         return( m_errSAPos < other.m_errSAPos );
     }
 
-    CandidateMatch(int32_t spos, int32_t epos, int32_t src):
+    L1Suffix(int32_t spos, int32_t epos, int32_t src):
         m_startPos(spos), m_errSAPos(epos), m_srcStr(src) { }
 
-    CandidateMatch(){}
+    L1Suffix(){}
 
     void write(std::ostream& ots, const char *sepStr = "\t") const{
         ots << m_startPos << sepStr << m_errSAPos << sepStr
@@ -114,28 +116,33 @@ public:
 class LCPOne{
 private:
     AppConfig& m_aCfg;
-    int32_t m_strLength[2];
+    int32_t m_strLengths[2];
+    int32_t m_strLenPfx[2];
     std::string m_strXY;
     ivec_t m_gsa, m_gisa, m_glcp;
     ivec_t m_lcpOneXY[2][2];
     rmq_support_sparse_table<ivec_t, true, ivec_t> m_rangeMinQuery;
 
-    int32_t getLeftEnd(const int32_t& curPos);
-    int32_t getRightEnd(const int32_t& curPos);
-    void getCandidateMatches(InternalNode& iNode,
-                             std::vector<CandidateMatch>& candies);
-    void getInternalNodes(std::vector<InternalNode>& iNodes);
-    void updateLCPOne(InternalNode& iNode, std::vector<CandidateMatch>& candies);
-    void updateLtoR(InternalNode& iNode, std::vector<CandidateMatch>& candies);
-    void updateRtoL(InternalNode& iNode, std::vector<CandidateMatch>& candies);
-    int32_t rangeMinLCP(const CandidateMatch& m1, const CandidateMatch& m2);
+    int32_t leftBound0(int32_t curLeaf);
+    int32_t rightBound0(int32_t curLeaf);
+    void selectInternalNodes0(std::vector<InternalNode>& iNodes);
+    void chopSuffixes0(const InternalNode& iNode,
+                       std::vector<L1Suffix>& candies);
+
+    void updateLtoR(InternalNode& iNode, std::vector<L1Suffix>& candies);
+    void updateRtoL(InternalNode& iNode, std::vector<L1Suffix>& candies);
+    void updateLCPOne(InternalNode& iNode, std::vector<L1Suffix>& candies);
+
+    void eliminateDupes(std::vector<InternalNode>& iNodes);
+    int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2);
+    int32_t rangeMinLCP(const L1Suffix& m1, const L1Suffix& m2);
     int32_t strPos(const int32_t& rid, const int32_t& gPos);
 
     template<typename BoundChecker, typename NextPointer>
     void updatePass(int32_t src_ptr, int32_t tgt_ptr,
                     const int32_t& tgt_bound,
                     const InternalNode& iNode,
-                    const std::vector<CandidateMatch>& candies
+                    const std::vector<L1Suffix>& candies
 #ifdef DEBUG
                     ,
                     const std::string& dbgStr
@@ -168,7 +175,7 @@ private:
             candies[src_ptr].write(m_aCfg.lfs, ",\t");
             m_aCfg.lfs << ",\t";
             candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
-            m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLength[tgt]
+            m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLengths[tgt]
                        << ",\t" << score << "]," << std::endl;
 #endif
             // - update target's lcp if it is better than current lcp.
@@ -186,6 +193,16 @@ private:
         }
     }
 
+    int32_t leftBoundK(const std::vector<L1Suffix>& trieLeaves,
+                       int32_t curLeaf);
+    int32_t rightBoundK(const std::vector<L1Suffix>& trieLeaves,
+                        int32_t curLeaf);
+    void selectInternalNodesK(const InternalNode& prevNode,
+                              const std::vector<L1Suffix>& candies,
+                              std::vector<InternalNode>& trieNodes);
+    void chopSuffixesK(const InternalNode& iNode,
+                       const std::vector<L1Suffix>& inCandies,
+                       std::vector<L1Suffix>& outCandies);
 public:
     LCPOne(const std::string& x, const std::string& y, AppConfig& cfg);
     void print(std::ostream& ofs);

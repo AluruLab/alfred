@@ -60,7 +60,7 @@ template<typename int_vector>
 void construct_lcp_kasai(const char* text, const int_vector& sa,
                          const int_vector& isa, int_vector& lcp){
     typedef typename int_vector::size_type size_type;
-    lcp.resize(sa.size());
+    lcp.resize(sa.size() + 1);
     for(size_type i = 0; i < sa.size();i++)
         lcp[i] = sa[i];
 
@@ -85,6 +85,7 @@ void construct_lcp_kasai(const char* text, const int_vector& sa,
         lcp[i-1] = lcp[i-2];
     }
     lcp[0] = 0;
+    lcp[sa.size()] = lcp[sa.size() - 1];
 }
 
 
