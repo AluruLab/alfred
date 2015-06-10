@@ -141,104 +141,15 @@ int32_t LCPOne::strPos(const int32_t& rid, const int32_t& gPos){
     return (rid == 0) ? gPos : (gPos - m_strLengths[0] - 1);
 }
 
-void LCPOne::updateLtoR(InternalNode& iNode,
-                        std::vector<L1Suffix>& candies){
-    // left -> right pass
-    //   initialize src_ptr, tgt_ptr to the first shift
-    int32_t src_ptr = 0, tgt_ptr = 1, rmin = 0;
-    while(tgt_ptr < (int32_t)candies.size()){
-        if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
-            break;
-        src_ptr = tgt_ptr;
-        tgt_ptr += 1;
-    }
-    // nothing to do
-    if(tgt_ptr >= (int32_t)candies.size() ||
-       candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
-        return;
-    //   do until we reach the end of list
-    while(true){
-        int32_t tgt = candies[tgt_ptr].m_srcStr,
-            tpos = strPos(tgt, candies[tgt_ptr].m_startPos);
-        // - update running min.
-        rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
-        int32_t score = iNode.m_stringDepth + rmin;
-
-        m_aCfg.lfs << "\t[ \"L->R\", " << iNode.m_stringDepth << ",\t" << rmin << ",\t";
-        candies[src_ptr].write(m_aCfg.lfs, ",\t");
-        m_aCfg.lfs << ",\t";
-        candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
-        m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLengths[tgt]
-                   << ",\t" << score << "]," << std::endl;
-
-        // - update target's lcp if it is better than current lcp.
-        if(score > m_lcpOneXY[tgt][1][tpos]){
-            m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
-            m_lcpOneXY[tgt][1][tpos] = score;
-        }
-        // - move tgt_ptr
-        tgt_ptr += 1;
-        if(tgt_ptr >= (int32_t)candies.size())
-            break;
-        // - if tgt_ptr switches string,
-        if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
-            src_ptr = tgt_ptr - 1; // update src_ptr
-    }
-}
-
-void LCPOne::updateRtoL(InternalNode& iNode,
-                        std::vector<L1Suffix>& candies){
-    //   initialize src_ptr, tgt_ptr to the first shift
-    int32_t src_ptr = candies.size() - 1,
-        tgt_ptr = src_ptr - 1, rmin = 0;
-    while(tgt_ptr > -1){
-        if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
-            break;
-        src_ptr = tgt_ptr;
-        tgt_ptr -= 1;
-    }
-    // nothing to do
-    if(tgt_ptr < 0 ||
-       candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
-        return;
-    //   do until we reach the end of list
-    while(true){
-        int32_t tgt = candies[tgt_ptr].m_srcStr,
-            tpos = strPos(tgt, candies[tgt_ptr].m_startPos);
-        // - update running min.
-        rmin = rangeMinLCP(candies[tgt_ptr], candies[src_ptr]);
-        int32_t score = iNode.m_stringDepth + rmin;
-
-        m_aCfg.lfs << "\t[ \"R->L\", " << iNode.m_stringDepth << ",\t"
-                   << rmin << ",\t";
-        candies[src_ptr].write(m_aCfg.lfs, ",\t");
-        m_aCfg.lfs << ",\t";
-        candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
-        m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLengths[tgt]
-                   << ",\t" << score << "]," << std::endl;
-
-        // - update target's lcp if it is better than current lcp.
-        if(score > m_lcpOneXY[tgt][1][tpos]){
-            m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
-            m_lcpOneXY[tgt][1][tpos] = score;
-        }
-        // - move tgt_ptr
-        tgt_ptr -= 1;
-        if(tgt_ptr < 0)
-            break;
-        // - if tgt_ptr switches string,
-        if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
-            src_ptr = tgt_ptr + 1; // update src_ptr
-    }
-}
-
 void LCPOne::updateLCPOne(InternalNode& iNode,
                           std::vector<L1Suffix>& candies){
+#ifdef DEBUG
     m_aCfg.lfs << std::endl;
     for(auto cm: candies){
         cm.dwriteln(m_aCfg.lfs);
     }
     m_aCfg.lfs << std::endl;
+#endif
 
     // left -> right pass
     //updateLtoR(iNode, candies);
@@ -258,9 +169,9 @@ void LCPOne::updateLCPOne(InternalNode& iNode,
 
                                              );
 
-    // updateLtoR(iNode, candies);
-    // updateRtoL(iNode, candies);
+#ifdef DEBUG
     m_aCfg.lfs << std::endl;
+#endif
 }
 
 //
