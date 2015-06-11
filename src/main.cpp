@@ -9,6 +9,7 @@ int main(int argc, char** argv){
     AppConfig acfg(argc, argv);
     if(!acfg.validate(std::cout))
         return 0;
+    clock_t startTime = clock();
 
     // Build the reads database and get it as a string
     ReadsDB rdb(acfg.dir, acfg.ifiles, 0);
@@ -22,15 +23,18 @@ int main(int argc, char** argv){
     acfg.write(acfg.lfs);
     rdb.writeMeta(acfg.lfs);
 
-    clock_t startTime = clock();
+    clock_t klcpStart = clock();
 
     // estimate k-lcp
     compute_klcp(rdb, acfg);
 
     // write time taken
     acfg.lfs << "\"klcp_time_secs\" : "
-                 << double( clock() - startTime ) / ((double)CLOCKS_PER_SEC )
-                 << std::endl;
+             << double( clock() - klcpStart ) / ((double)CLOCKS_PER_SEC )
+             << "," << std::endl;
+    acfg.lfs << "\"total_time_secs\" : "
+             << double( clock() - startTime ) / ((double)CLOCKS_PER_SEC )
+             << std::endl;
     acfg.lfs << "}" << std::endl;
     return 0;
 }

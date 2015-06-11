@@ -1,6 +1,7 @@
 #include "ReadsDB.hpp"
 #include "AppConfig.hpp"
-#include "compute_klcp.hpp"
+#include "ExactLCPK.hpp"
+#include "NaiveLCPk.hpp"
 #include "gtest/gtest.h"
 #include <vector>
 #include <string>

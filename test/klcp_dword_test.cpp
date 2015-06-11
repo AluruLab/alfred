@@ -8,14 +8,12 @@
 #include <iostream>
 #include <algorithm>
 
-class PrimatesLCPTest : public ::testing::Test {
+class DNA15LCPTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
         std::vector<std::string> bfiles;
-        bfiles.push_back("C.aethiops.fa");
-        bfiles.push_back("C.albifrons.fa");
-        // bfiles.push_back("t1.fa");
-        // bfiles.push_back("t2.fa");
+        bfiles.push_back("t1.fa");
+        bfiles.push_back("t2.fa");
         pacfg1 = new AppConfig(bfiles, "psa.out", "psa.log", 1, 0);
         pacfg2 = new AppConfig(bfiles, "pnaive.out", "pnaive.log", 1, 1);
         prdb = new ReadsDB(pacfg1->dir, pacfg1->ifiles, 0);
@@ -41,7 +39,7 @@ protected:
 
 };
 
-TEST_F(PrimatesLCPTest, PrimatesLCPOneCheck){
+TEST_F(DNA15LCPTest, DNA15LCPOneCheck){
     pelxy->computeTest(1);
     pnlxy->computeTest(1);
     ASSERT_EQ(pelxy->getkLCP()[0][0].size(), pnlxy->getkLCP()[0][0].size());
@@ -50,7 +48,7 @@ TEST_F(PrimatesLCPTest, PrimatesLCPOneCheck){
     ASSERT_EQ(pelxy->getkLCP()[1][1], pnlxy->getkLCP()[1][1]);
 }
 
-TEST_F(PrimatesLCPTest, PrimatesLCPTwoCheck){
+TEST_F(DNA15LCPTest, DNA15LCPTwoCheck){
     pelxy->computeTest(2);
     pnlxy->computeTest(2);
     ASSERT_EQ(pelxy->getkLCP()[0][0].size(), pnlxy->getkLCP()[0][0].size());
@@ -59,7 +57,7 @@ TEST_F(PrimatesLCPTest, PrimatesLCPTwoCheck){
     ASSERT_EQ(pelxy->getkLCP()[1][1], pnlxy->getkLCP()[1][1]);
 }
 
-TEST_F(PrimatesLCPTest, PrimatesLCPThreeCheck){
+TEST_F(DNA15LCPTest, DNA15LCPThreeCheck){
     pelxy->computeTest(3);
     pnlxy->computeTest(3);
     ASSERT_EQ(pelxy->getkLCP()[0][0].size(), pnlxy->getkLCP()[0][0].size());
