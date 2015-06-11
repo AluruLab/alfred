@@ -16,10 +16,15 @@ struct AppConfig{
     std::ofstream ofs;
     std::ofstream lfs;
     int kv;
+    bool naive;
 
     void printHelp(std::ostream& ots);
     bool validate(std::ostream& ots);
     void write(std::ostream& ots);
+    AppConfig(const std::vector<std::string>& files,
+              const std::string& of,
+              const std::string& lf,
+              int kval, bool nve);
     AppConfig(int argc, char** argv);
     ~AppConfig();
 };

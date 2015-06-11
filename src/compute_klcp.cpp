@@ -29,8 +29,13 @@ void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
 
 }
 
-void naive_lcpk(const std::string& sx, const std::string& sy,
-                ivec_t lcpKXY[2][2], unsigned k, int tidx){
+NaiveLCPk::NaiveLCPk(const std::string& x, const std::string& y,
+                     AppConfig& cfg): sx(x), sy(y), m_aCfg(cfg){
+    m_kv = m_aCfg.kv;
+}
+
+void NaiveLCPk::runLCPk(const std::string& sx, const std::string& sy,
+                        int tidx){
     for(unsigned xstart = 0; xstart < sx.size(); xstart++){
         for(unsigned ystart = 0; ystart < sy.size(); ystart++){
             unsigned howfar = 0, kdx = 0;
@@ -38,39 +43,50 @@ void naive_lcpk(const std::string& sx, const std::string& sy,
                   (xstart + howfar < sx.size())){
                 if(sx[xstart + howfar] != sy[ystart + howfar])
                     kdx += 1;
-                if(k < kdx)
+                if(m_kv < (int)kdx)
                     break;
                 howfar++;
             }
-            if(lcpKXY[tidx][1][xstart] < (int32_t)howfar){
-                lcpKXY[tidx][0][xstart] = (int32_t)ystart;
-                lcpKXY[tidx][1][xstart] = (int32_t)howfar;
+            if(m_klcpXY[tidx][1][xstart] < (int32_t)howfar){
+                m_klcpXY[tidx][0][xstart] = (int32_t)ystart;
+                m_klcpXY[tidx][1][xstart] = (int32_t)howfar;
             }
         }
     }
 }
 
-void process_pair_naive(unsigned i, unsigned j, ReadsDB& rdb,
-                        AppConfig& cfg, int k){
-    const std::string& sx = rdb.getReadById(i);
-    const std::string& sy = rdb.getReadById(j);
-    ivec_t lcpKXY[2][2];
+void NaiveLCPk::compute(){
     int32_t strLengths[2];
     strLengths[0] = sx.size(); strLengths[1] = sy.size();
 
     // resize the LCP arrays
     for(unsigned i = 0; i < 2; i++){
         for(unsigned j = 0; j  < 2;j++){
-            lcpKXY[i][j].resize(strLengths[i], 0);
+            m_klcpXY[i][j].resize(strLengths[i], 0);
         }
     }
-
-    naive_lcpk(sx, sy, lcpKXY, k, 0);
-    naive_lcpk(sy, sx, lcpKXY, k, 1);
-    print_lcpk(i, j, rdb, lcpKXY, k, cfg.lfs);
+    runLCPk(sx, sy, 0);
+    runLCPk(sy, sx, 1);
 }
 
-LCPOne::LCPOne(const std::string& sx, const std::string& sy,
+void NaiveLCPk::computeTest(int k){
+    m_kv = k;
+    compute();
+}
+
+
+void process_pair_naive(unsigned i, unsigned j, ReadsDB& rdb,
+                        AppConfig& cfg){
+    const std::string& sx = rdb.getReadById(i);
+    const std::string& sy = rdb.getReadById(j);
+
+    cfg.kv = cfg.kv == 0 ? 1 : cfg.kv;
+    NaiveLCPk lxy(sx, sy, cfg);
+    lxy.compute();
+    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.lfs);
+}
+
+ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
                AppConfig& cfg) : m_aCfg(cfg){
     m_kv = m_aCfg.kv > 0 ? m_aCfg.kv : 1;
     m_strXY = sx + "#" + sy + "$";
@@ -86,7 +102,7 @@ LCPOne::LCPOne(const std::string& sx, const std::string& sy,
         std::move(rmq_support_sparse_table<ivec_t, true, ivec_t>(&m_glcp));
 }
 
-void LCPOne::print(std::ostream& ofs){
+void ExactLCPk::print(std::ostream& ofs){
     for(size_t i = 0; i < m_gsa.size();i++)
         ofs << " [" << std::setw(5) << i << ","
             << std::setw(5) << m_gsa[i] << ","
@@ -95,7 +111,7 @@ void LCPOne::print(std::ostream& ofs){
             << std::endl;
 }
 
-int32_t LCPOne::leftBound0(int32_t curLeaf){
+int32_t ExactLCPk::leftBound0(int32_t curLeaf){
     if(curLeaf + 1 >= (int32_t)m_gsa.size()) // reached the end
         curLeaf = (int32_t)m_gsa.size() - 2;
     if(curLeaf <= 2) // First two suffixes comes from the separators
@@ -111,7 +127,7 @@ int32_t LCPOne::leftBound0(int32_t curLeaf){
     return lpos;
 }
 
-int32_t LCPOne::rightBound0(int32_t curLeaf){
+int32_t ExactLCPk::rightBound0(int32_t curLeaf){
     if(curLeaf <= 2) // First two suffixes comes from the separators
         curLeaf = 2;
     if(curLeaf + 1 >= (int32_t)m_gsa.size()) // reached the end
@@ -130,7 +146,7 @@ int32_t LCPOne::rightBound0(int32_t curLeaf){
     return rpos;
 }
 
-void LCPOne::chopSuffixes0(const InternalNode& iNode,
+void ExactLCPk::chopSuffixes0(const InternalNode& iNode,
                            std::vector<L1Suffix>& leaves){
 
     assert(iNode.m_rightBound > iNode.m_leftBound);
@@ -157,7 +173,7 @@ void LCPOne::chopSuffixes0(const InternalNode& iNode,
     std::sort(leaves.begin(), leaves.end());
 }
 
-void LCPOne::eliminateDupes(std::vector<InternalNode>& iNodes){
+void ExactLCPk::eliminateDupes(std::vector<InternalNode>& iNodes){
     // sort
     std::sort(iNodes.begin(), iNodes.end());
     // move up
@@ -171,7 +187,7 @@ void LCPOne::eliminateDupes(std::vector<InternalNode>& iNodes){
     iNodes.resize(j+1);
 }
 
-void LCPOne::selectInternalNodes0(std::vector<InternalNode>& uNodes){
+void ExactLCPk::selectInternalNodes0(std::vector<InternalNode>& uNodes){
     uNodes.resize(m_gsa.size() - 2);
 
     // Get all the internal nodes
@@ -186,7 +202,7 @@ void LCPOne::selectInternalNodes0(std::vector<InternalNode>& uNodes){
     eliminateDupes(uNodes);
 }
 
-void LCPOne::updateLCPOne(InternalNode& uNode,
+void ExactLCPk::updateExactLCPk(InternalNode& uNode,
                           std::vector<L1Suffix>& leaves){
 #ifdef DEBUG
     m_aCfg.lfs << std::endl;
@@ -225,7 +241,7 @@ void LCPOne::updateLCPOne(InternalNode& uNode,
 //    - we start with curLeaf and its next as the tree 'x'
 //    - we grow this tree 'x' until we reach its left end
 //
-int32_t LCPOne::leftBoundK(const std::vector<L1Suffix>& trieLeaves,
+int32_t ExactLCPk::leftBoundK(const std::vector<L1Suffix>& trieLeaves,
                            int32_t curLeaf){
     if(curLeaf + 1 >= (int32_t)trieLeaves.size()) // reached the end
         curLeaf = (int32_t) trieLeaves.size() - 2;
@@ -255,7 +271,7 @@ int32_t LCPOne::leftBoundK(const std::vector<L1Suffix>& trieLeaves,
 //    - we start with curLeaf and its next as the tree 'x'
 //    - we grow this tree 'x' until we reach its right end
 //
-int32_t LCPOne::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
+int32_t ExactLCPk::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
                             int32_t curLeaf){
     if(curLeaf < 0)
         curLeaf = 1;
@@ -282,7 +298,7 @@ int32_t LCPOne::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
     return rpos;
 }
 
-void LCPOne::selectInternalNodesK(const InternalNode& prevNode,
+void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
                                   const std::vector<L1Suffix>& leaves,
                                   std::vector<InternalNode>& trieNodes){
     // Assume candidates are sorted
@@ -310,7 +326,7 @@ void LCPOne::selectInternalNodesK(const InternalNode& prevNode,
     eliminateDupes(trieNodes);
 }
 
-void LCPOne::chopSuffixesK(const InternalNode& iNode,
+void ExactLCPk::chopSuffixesK(const InternalNode& iNode,
                            const std::vector<L1Suffix>& inSuffixes,
                            std::vector<L1Suffix>& outSuffixes){
     if(iNode.m_leftBound == -1 || iNode.m_rightBound == -1)
@@ -341,7 +357,7 @@ void LCPOne::chopSuffixesK(const InternalNode& iNode,
     outSuffixes.resize(j);
 }
 
-void LCPOne::compute0(){
+void ExactLCPk::compute0(){
     assert(m_gsa.size() > 2);
     assert(m_gsa.size() + 1 == m_glcp.size()); // an assumption of lca
 
@@ -365,15 +381,15 @@ void LCPOne::compute0(){
         std::vector<L1Suffix> choppedSfxs;
         chopSuffixes0(*nit, choppedSfxs);
         // update lcp using sorted tuples using a double pass
-        updateLCPOne(*nit, choppedSfxs);
+        updateExactLCPk(*nit, choppedSfxs);
     }
 }
 
-void LCPOne::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
+void ExactLCPk::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
                       int searchLevel){
     if(searchLevel == 0){
         // update LCP array
-        updateLCPOne(uNode, uLeaves);
+        updateExactLCPk(uNode, uLeaves);
         return;
     }
     std::vector<InternalNode> trieNodes;
@@ -385,7 +401,7 @@ void LCPOne::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
     }
 }
 
-void LCPOne::computeK(){
+void ExactLCPk::computeK(){
     assert(m_gsa.size() > 2);
     assert(m_gsa.size() + 1 == m_glcp.size()); // an assumption of lca
 
@@ -417,7 +433,7 @@ void LCPOne::computeK(){
     }
 }
 
-void LCPOne::compute(){
+void ExactLCPk::compute(){
     assert(m_kv >= 0);
     if (m_kv == 0){
         compute0();
@@ -426,11 +442,16 @@ void LCPOne::compute(){
     }
 }
 
+void ExactLCPk::computeTest(int k){
+    m_kv= k;
+    computeK();
+}
+
 void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
-    LCPOne lxy(sx, sy, cfg); // construct suffix array
+    ExactLCPk lxy(sx, sy, cfg); // construct suffix array
 #ifdef DEBUG
     lxy.print(cfg.lfs);
 #endif
@@ -446,7 +467,10 @@ void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
 
     for(unsigned i  = 0; i < nReads; i++){
         for(unsigned j = i + 1; j < nReads; j++){
-            process_pair(i, j, rdb, cfg);
+            if(cfg.naive)
+                process_pair_naive(i, j, rdb, cfg);
+            else
+                process_pair(i, j, rdb, cfg);
             //process_pair_naive(i, j, rdb, cfg, 1);
             //process_pair_naive(i, j, rdb, cfg, 2);
             break;

@@ -113,7 +113,7 @@ public:
     }
 };
 
-class LCPOne{
+class ExactLCPk{
 private:
     AppConfig& m_aCfg;
     int32_t m_strLengths[2];
@@ -132,7 +132,7 @@ private:
     void chopSuffixes0(const InternalNode& uNode,
                        std::vector<L1Suffix>& leaves);
 
-    void updateLCPOne(InternalNode& uNode, std::vector<L1Suffix>& leaves);
+    void updateExactLCPk(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
     void eliminateDupes(std::vector<InternalNode>& iNodes);
 
@@ -243,15 +243,36 @@ private:
                        std::vector<L1Suffix>& trieLeaves);
     void compute0();
 public:
-    LCPOne(const std::string& x, const std::string& y,
-           AppConfig& cfg);
+    ExactLCPk(const std::string& x, const std::string& y,
+              AppConfig& cfg);
     void print(std::ostream& ofs);
     void compute();
     auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
     }
+    void computeTest(int k);
 };
 
+class NaiveLCPk{
+    const std::string& sx;
+    const std::string& sy;
+    AppConfig& m_aCfg;
+    int m_kv;
+    ivec_t m_klcpXY[2][2];
+    void runLCPk(const std::string& sx, const std::string& sy,
+                 int tidx);
+public:
+    NaiveLCPk(const std::string& x, const std::string& y, AppConfig& cfg);
+    void compute();
+    void computeTest(int k);
+    auto getkLCP() -> const ivec_t (&)[2][2] {
+        return m_klcpXY;
+    }
+};
+
+void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
+                const ivec_t lcpKXY[2][2], const unsigned& k,
+                std::ostream& lfs);
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg);
 
 #endif /* COMPUTE_KLCP_H */

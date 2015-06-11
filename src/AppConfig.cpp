@@ -24,19 +24,21 @@ void AppConfig::printHelp(std::ostream& ots){
         << "\t -l <file>  path to log file (should be writable) ["
         << "/path/to/output/file.log]" << std::endl
         << "\t -k <int>   number of mismatches [1]" << std::endl
+        << "\t -n         estimate lcp using O(n^2) method" << std::endl
         << "\t -h         print this help " << std::endl
         << std::endl;
 }
 
 AppConfig::AppConfig(int argc, char** argv){
     char c;
-    const char* params = "i:l:f:o:k:hH";
+    const char* params = "i:l:f:o:k:nhH";
     help = false;
     app = argv[0];
     dir = "";
     outf = "";
     logf = "";
     kv = 1;
+    naive = false;
     std::string fstr = "";
 
     while ((c = getopt(argc, argv, params)) != -1) {
@@ -63,10 +65,26 @@ AppConfig::AppConfig(int argc, char** argv){
         case 'k':
             kv = atoi(optarg);
             break;
+        case 'n':
+            naive = true;
+            break;
         }
     }
     if(logf.length() == 0)
         logf = outf + ".log";
+}
+
+AppConfig::AppConfig(const std::vector<std::string>& files,
+                     const std::string& of,
+                     const std::string& lf,
+                     int kval, bool nve){
+    app = "testApp";
+    ifiles = files;
+    outf = of;
+    logf = lf;
+    kv = kval;
+    naive = nve;
+    help = false;
 }
 
 bool AppConfig::validate(std::ostream& ots){
