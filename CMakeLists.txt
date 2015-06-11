@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.8)
 set(PROJECT_NAME_STR arakawa)
 PROJECT(${PROJECT_NAME_STR} C CXX)
 #TODO CHANGE THIS OPTION
-set(CMAKE_VERBOSE_MAKEFILE on)
+set(CMAKE_VERBOSE_MAKEFILE off)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(Threads REQUIRED)
@@ -13,7 +13,7 @@ set(SDSL_SOURCE_DIR "${PROJECT_SOURCE_DIR}/ext/sdsl-lite")
 
 # flags
 set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # include the sdsl files and googletest library

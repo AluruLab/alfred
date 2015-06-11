@@ -1,4 +1,11 @@
 
 *.log
+*.aux
+*.fls
+*.nav
+*.out
+*.snm
+*.toc
+*.fdb_latexmk
 build/*
 data/*.zip

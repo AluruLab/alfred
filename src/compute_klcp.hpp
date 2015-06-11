@@ -77,10 +77,15 @@ struct L1Suffix{
         ots << std::endl;
     }
 
-    void dwriteln(std::ostream& ots) const{
+    void dwrite(std::ostream& ots) const{
         ots << "\t[";
         write(ots, ",\t");
-        ots << "]," << std::endl;
+        ots << "],";
+    }
+
+    void dwriteln(std::ostream& ots) const{
+        dwrite(ots);
+        ots << std::endl;
     }
 
 };
@@ -134,7 +139,7 @@ private:
 
     void updateExactLCPk(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
-    void eliminateDupes(std::vector<InternalNode>& iNodes);
+    void eliminateDupes(std::vector<InternalNode>& uNodes);
 
     inline int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2){
         if(t1 < 0 || t2 < 0)
@@ -201,14 +206,19 @@ private:
             rmin = updatePassLCP(leaves[src_ptr], leaves[tgt_ptr]);
             int32_t score = uNode.m_stringDepth + uNode.m_delta + rmin;
 #ifdef DEBUG
-            m_aCfg.lfs << "\t[ \"" << dbgStr << "\",\t"
+            m_aCfg.lfs << "\t[ \""
+                       << dbgStr << "\",\t"
+                       << score << ",\t"
+                       << tgt << ",\t"
+                       << tpos << ",\t"
                        << uNode.m_stringDepth << ",\t"
-                       << rmin << ",\t";
+                       << uNode.m_delta << ",\t"
+                       << rmin << ",\t"
+                ;
             leaves[src_ptr].write(m_aCfg.lfs, ",\t");
             m_aCfg.lfs << ",\t";
             leaves[tgt_ptr].write(m_aCfg.lfs, ",\t");
-            m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLengths[tgt]
-                       << ",\t" << score << "]," << std::endl;
+            m_aCfg.lfs  << "]," << std::endl;
 #endif
             assert(tpos >= 0);
             assert(tpos < (int32_t)m_klcpXY[tgt][1].size());
