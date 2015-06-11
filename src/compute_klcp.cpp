@@ -5,6 +5,71 @@
 #include <iomanip>
 #include <algorithm>
 
+void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
+                const ivec_t lcpKXY[2][2], const unsigned& k,
+                std::ostream& lfs){
+    const std::string& sx = rdb.getReadById(i);
+    const std::string& sy = rdb.getReadById(j);
+
+    lfs << " [[" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
+        << sy.size() << ",\t" << k << "]," << std::endl << "  [" ;
+    for(unsigned i = 0; i < lcpKXY[0][0].size(); i++)
+        lfs << "[" << i
+            << ", " << lcpKXY[0][0][i]
+            << ", " << lcpKXY[0][1][i]
+            << ((i == lcpKXY[0][0].size() - 1) ? "]" : "],\t");
+    lfs << "]," << std::endl;
+    lfs << "  [";
+    for(unsigned i = 0; i < lcpKXY[1][0].size(); i++)
+        lfs << "[" << i
+            << ", " << lcpKXY[1][0][i]
+            << ", " << lcpKXY[1][1][i]
+            << ((i == lcpKXY[1][0].size() - 1) ? "" : "],\t");
+    lfs << "]]," << std::endl;
+
+}
+
+void naive_lcpk(const std::string& sx, const std::string& sy,
+                ivec_t lcpKXY[2][2], unsigned k, int tidx){
+    for(unsigned xstart = 0; xstart < sx.size(); xstart++){
+        for(unsigned ystart = 0; ystart < sy.size(); ystart++){
+            unsigned howfar = 0, kdx = 0;
+            while((ystart + howfar < sy.size()) &&
+                  (xstart + howfar < sx.size())){
+                if(sx[xstart + howfar] != sy[ystart + howfar])
+                    kdx += 1;
+                if(k < kdx)
+                    break;
+                howfar++;
+            }
+            if(lcpKXY[tidx][1][xstart] < (int32_t)howfar){
+                lcpKXY[tidx][0][xstart] = (int32_t)ystart;
+                lcpKXY[tidx][1][xstart] = (int32_t)howfar;
+            }
+        }
+    }
+}
+
+void process_pair_naive(unsigned i, unsigned j, ReadsDB& rdb,
+                        AppConfig& cfg, int k){
+    const std::string& sx = rdb.getReadById(i);
+    const std::string& sy = rdb.getReadById(j);
+    ivec_t lcpKXY[2][2];
+    int32_t strLengths[2];
+    strLengths[0] = sx.size(); strLengths[1] = sy.size();
+
+    // resize the LCP arrays
+    for(unsigned i = 0; i < 2; i++){
+        for(unsigned j = 0; j  < 2;j++){
+            lcpKXY[i][j].resize(strLengths[i], 0);
+        }
+    }
+
+    naive_lcpk(sx, sy, lcpKXY, k, 0);
+    naive_lcpk(sy, sx, lcpKXY, k, 1);
+    print_lcpk(i, j, rdb, lcpKXY, k, cfg.lfs);
+}
+
 LCPOne::LCPOne(const std::string& sx, const std::string& sy,
                AppConfig& cfg, int kv) : m_aCfg(cfg){
     m_kv = kv;
@@ -388,7 +453,9 @@ void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
     LCPOne lxy(sx, sy, cfg); // construct suffix array
     lxy.print(cfg.lfs);
     lxy.compute();
+    print_lcpk(i, j, rdb, lxy.getLCPOne(), 1, cfg.lfs);
 }
+
 
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
     // TODO
@@ -398,6 +465,8 @@ void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
     for(unsigned i  = 0; i < nReads; i++){
         for(unsigned j = i + 1; j < nReads; j++){
             process_pair(i, j, rdb, cfg);
+            //process_pair_naive(i, j, rdb, cfg, 1);
+            //process_pair_naive(i, j, rdb, cfg, 2);
             break;
         }
     }

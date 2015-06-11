@@ -218,6 +218,9 @@ public:
            AppConfig& cfg, int kv = 1);
     void print(std::ostream& ofs);
     void compute();
+    auto getLCPOne() -> const ivec_t (&)[2][2] {
+        return m_lcpOneXY;
+    }
 };
 
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg);
