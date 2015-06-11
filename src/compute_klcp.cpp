@@ -7,25 +7,26 @@
 
 void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
                 const ivec_t lcpKXY[2][2], const unsigned& k,
-                std::ostream& lfs){
+                std::ostream& lfs, const char* key){
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
-    lfs << " [[" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
-        << sy.size() << ",\t" << k << "]," << std::endl << "  [" ;
+    lfs << "\"" << key << "\"      : [" << std::endl;
+    lfs << "   [" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
+        << sy.size() << ",\t" << k << "]," << std::endl << "    [" ;
     for(unsigned i = 0; i < lcpKXY[0][0].size(); i++)
         lfs << "[" << i
             << ", " << lcpKXY[0][0][i]
             << ", " << lcpKXY[0][1][i]
             << ((i == lcpKXY[0][0].size() - 1) ? "]" : "],\t");
     lfs << "]," << std::endl;
-    lfs << "  [";
+    lfs << "    [";
     for(unsigned i = 0; i < lcpKXY[1][0].size(); i++)
         lfs << "[" << i
             << ", " << lcpKXY[1][0][i]
             << ", " << lcpKXY[1][1][i]
             << ((i == lcpKXY[1][0].size() - 1) ? "]" : "],\t");
-    lfs << "]]," << std::endl;
+    lfs << "]" << std::endl << "  ]," << std::endl;
 
 }
 
@@ -104,7 +105,7 @@ ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
 
 void ExactLCPk::print(std::ostream& ofs){
     for(size_t i = 0; i < m_gsa.size();i++)
-        ofs << " [" << std::setw(5) << i << ","
+        ofs << "   [" << std::setw(5) << i << ","
             << std::setw(5) << m_gsa[i] << ","
             << std::setw(5) << (i < m_glcp.size() ? m_glcp[i] : -1) << ","
             << "    \"" << (m_strXY.c_str() + m_gsa[i]) << "\"],"
@@ -450,6 +451,9 @@ void ExactLCPk::computeTest(int k){
 }
 
 void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
+#ifdef DEBUG
+    cfg.lfs << "\"klcp_debug\"      : [" << std::endl;
+#endif
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
@@ -458,6 +462,9 @@ void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
     lxy.print(cfg.lfs);
 #endif
     lxy.compute();
+#ifdef DEBUG
+    cfg.lfs << " []]," << std::endl;
+#endif
     print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs);
 }
 

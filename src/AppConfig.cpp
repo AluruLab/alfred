@@ -9,6 +9,8 @@ void AppConfig::write(std::ostream& ots){
     ots << " \t\"in_files\" : \"" << ifiles.size() << "\"," << std::endl;
     ots << " \t\"out_file\" : \"" << outf << "\"," << std::endl;
     ots << " \t\"log_file\" : \"" << logf << "\"," << std::endl;
+    ots << " \t\"kvalue\"   : \"" << kv << "\"," << std::endl;
+    ots << " \t\"naive\"    : \"" << kv << "\"" << std::endl;
     ots << " }," << std::endl;
 }
 
