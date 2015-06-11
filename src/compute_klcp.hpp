@@ -33,7 +33,7 @@ struct InternalNode{
 
     void write(std::ostream& ots, const char *sepStr = "\t") const{
         ots << m_leftBound << sepStr << m_rightBound << sepStr
-            << m_stringDepth;
+            << m_stringDepth << sepStr << m_delta;
     };
 
     void writeln(std::ostream& ots) const{

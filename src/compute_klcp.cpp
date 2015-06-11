@@ -355,6 +355,8 @@ void ExactLCPk::chopSuffixesK(const InternalNode& iNode,
         j++;
     }
     outSuffixes.resize(j);
+    //   sort tuples by c'
+    std::sort(outSuffixes.begin(), outSuffixes.end());
 }
 
 void ExactLCPk::compute0(){
