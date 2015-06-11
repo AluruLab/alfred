@@ -121,7 +121,7 @@ private:
     int32_t m_shiftPos[2];
     std::string m_strXY;
     ivec_t m_gsa, m_gisa, m_glcp;
-    ivec_t m_lcpOneXY[2][2];
+    ivec_t m_klcpXY[2][2];
     int m_kv;
 
     rmq_support_sparse_table<ivec_t, true, ivec_t> m_rangeMinQuery;
@@ -129,24 +129,52 @@ private:
     int32_t leftBound0(int32_t curLeaf);
     int32_t rightBound0(int32_t curLeaf);
     void selectInternalNodes0(std::vector<InternalNode>& uNodes);
-    void chopSuffixes0(const InternalNode& iNode,
-                       std::vector<L1Suffix>& candies);
+    void chopSuffixes0(const InternalNode& uNode,
+                       std::vector<L1Suffix>& leaves);
 
-    void updateLtoR(InternalNode& iNode, std::vector<L1Suffix>& candies);
-    void updateRtoL(InternalNode& iNode, std::vector<L1Suffix>& candies);
-    void updateLCPOne(InternalNode& iNode, std::vector<L1Suffix>& candies);
+    void updateLCPOne(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
     void eliminateDupes(std::vector<InternalNode>& iNodes);
-    int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2);
-    int32_t rangeMinLCP(const L1Suffix& m1, const L1Suffix& m2);
-    //int32_t strPos(const int32_t& rid, const int32_t& gPos);
-    int32_t strPos(const InternalNode& iNode, const L1Suffix& sfx);
+
+    inline int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2){
+        if(t1 < 0 || t2 < 0)
+            return 0;
+        int32_t mxv = std::max(t1, t2);
+        if(mxv > (int32_t)m_gsa.size())
+            return 0;
+        int32_t mnv = std::min(t1, t2);
+        int32_t rpos = m_rangeMinQuery(mnv == mxv ? mnv : (mnv + 1), mxv);
+        return m_glcp[rpos];
+    }
+
+    inline int32_t rangeMinLCP(const L1Suffix& m1, const L1Suffix& m2){
+        return rangeMinLCP(m1.m_errSAPos, m2.m_errSAPos);
+    }
+
+    inline int32_t updatePassLCP(const int32_t& t1, const int32_t& t2){
+        if(t1 < 0 || t2 < 0)
+            return 0;
+        int32_t mxv = std::max(t1, t2);
+        if(mxv > (int32_t)m_gsa.size())
+            return 0;
+        int32_t mnv = std::min(t1, t2);
+        int32_t rpos = m_rangeMinQuery(mnv == mxv ? mnv : (mnv + 1), mxv);
+        return 1 + m_glcp[rpos];
+    }
+
+    inline int32_t updatePassLCP(const L1Suffix& m1, const L1Suffix& m2){
+        return updatePassLCP(m1.m_errSAPos, m2.m_errSAPos);
+    }
+
+    inline int32_t strPos(const InternalNode& uNode, const L1Suffix& sfx){
+        return sfx.m_startPos - uNode.m_delta - m_shiftPos[sfx.m_srcStr];
+    }
 
     template<typename BoundChecker, typename NextPointer>
     void updatePass(int32_t src_ptr, int32_t tgt_ptr,
                     const int32_t& tgt_bound,
                     const InternalNode& uNode,
-                    const std::vector<L1Suffix>& candies
+                    const std::vector<L1Suffix>& leaves
 #ifdef DEBUG
                     ,
                     const std::string& dbgStr
@@ -157,44 +185,45 @@ private:
         int32_t rmin = 0;
         // move the pointer until we reach the first src, target
         while(bound_check(tgt_ptr, tgt_bound)){
-            if(candies[tgt_ptr].m_srcStr != candies[src_ptr].m_srcStr)
+            if(leaves[tgt_ptr].m_srcStr != leaves[src_ptr].m_srcStr)
                 break;
             src_ptr = tgt_ptr;
             next_ptr(tgt_ptr);
         }
         // if not within the bounds leave
         if(!bound_check(tgt_ptr, tgt_bound) ||
-           candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+           leaves[tgt_ptr].m_srcStr == leaves[src_ptr].m_srcStr)
             return;
         while(true){
-            int32_t tgt = candies[tgt_ptr].m_srcStr,
-                tpos = strPos(uNode, candies[tgt_ptr]);
+            int32_t tgt = leaves[tgt_ptr].m_srcStr,
+                tpos = strPos(uNode, leaves[tgt_ptr]);
             // - update running min.
-            rmin = rangeMinLCP(candies[src_ptr], candies[tgt_ptr]);
-            int32_t score = uNode.m_stringDepth + rmin;
+            rmin = updatePassLCP(leaves[src_ptr], leaves[tgt_ptr]);
+            int32_t score = uNode.m_stringDepth + uNode.m_delta + rmin;
 #ifdef DEBUG
             m_aCfg.lfs << "\t[ \"" << dbgStr << "\",\t"
                        << uNode.m_stringDepth << ",\t"
                        << rmin << ",\t";
-            candies[src_ptr].write(m_aCfg.lfs, ",\t");
+            leaves[src_ptr].write(m_aCfg.lfs, ",\t");
             m_aCfg.lfs << ",\t";
-            candies[tgt_ptr].write(m_aCfg.lfs, ",\t");
+            leaves[tgt_ptr].write(m_aCfg.lfs, ",\t");
             m_aCfg.lfs << ",\t" << tpos << ",\t" << m_strLengths[tgt]
                        << ",\t" << score << "]," << std::endl;
 #endif
             assert(tpos >= 0);
-            assert(tpos < (int32_t)m_lcpOneXY[tgt][1].size());
+            assert(tpos < (int32_t)m_klcpXY[tgt][1].size());
             // - update target's lcp if it is better than current lcp.
-            if(score > m_lcpOneXY[tgt][1][tpos]){
-                m_lcpOneXY[tgt][0][tpos] = candies[src_ptr].m_startPos;
-                m_lcpOneXY[tgt][1][tpos] = score;
+            if(score > m_klcpXY[tgt][1][tpos]){
+                m_klcpXY[tgt][0][tpos] = leaves[src_ptr].m_startPos
+                   - uNode.m_delta - m_shiftPos[1 - tgt];
+                m_klcpXY[tgt][1][tpos] = score;
             }
             int32_t prev_tgt = tgt_ptr;
             next_ptr(tgt_ptr);
             if(!bound_check(tgt_ptr, tgt_bound))
                 break;
             // - if tgt_ptr switches string,
-            if(candies[tgt_ptr].m_srcStr == candies[src_ptr].m_srcStr)
+            if(leaves[tgt_ptr].m_srcStr == leaves[src_ptr].m_srcStr)
                 src_ptr = prev_tgt; // update src_ptr
         }
     }
@@ -207,19 +236,19 @@ private:
     int32_t rightBoundK(const std::vector<L1Suffix>& trieLeaves,
                         int32_t curLeaf);
     void selectInternalNodesK(const InternalNode& prevNode,
-                              const std::vector<L1Suffix>& candies,
+                              const std::vector<L1Suffix>& leaves,
                               std::vector<InternalNode>& trieNodes);
-    void chopSuffixesK(const InternalNode& iNode,
-                       const std::vector<L1Suffix>& inCandies,
-                       std::vector<L1Suffix>& outCandies);
+    void chopSuffixesK(const InternalNode& uNode,
+                       const std::vector<L1Suffix>& uLeaves,
+                       std::vector<L1Suffix>& trieLeaves);
     void compute0();
 public:
     LCPOne(const std::string& x, const std::string& y,
-           AppConfig& cfg, int kv = 1);
+           AppConfig& cfg);
     void print(std::ostream& ofs);
     void compute();
-    auto getLCPOne() -> const ivec_t (&)[2][2] {
-        return m_lcpOneXY;
+    auto getkLCP() -> const ivec_t (&)[2][2] {
+        return m_klcpXY;
     }
 };
 

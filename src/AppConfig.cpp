@@ -16,25 +16,27 @@ void AppConfig::printHelp(std::ostream& ots){
     ots << "Usage " << app << " "
         << "-i <input dir> or <input files sepreated by comma> "
         << "-o <output file> "
-        << "[OPTIONS]" << std::endl
+        << "[OPTIONS]" << std::endl << std::endl
         << "Available options:" << std::endl
         << "\t -i <dir>   path to directory with fasta/fastq files" << std::endl
         << "\t -f <list>  list of paths to fasta/fastq files" << std::endl
         << "\t -o <file>  path to output file (should be writable)" << std::endl
         << "\t -l <file>  path to log file (should be writable) ["
         << "/path/to/output/file.log]" << std::endl
-        << std::endl
-        << "\t -h         print this help " << std::endl;
+        << "\t -k <int>   number of mismatches [1]" << std::endl
+        << "\t -h         print this help " << std::endl
+        << std::endl;
 }
 
 AppConfig::AppConfig(int argc, char** argv){
     char c;
-    const char* params = "i:l:f:o:hH";
+    const char* params = "i:l:f:o:k:hH";
     help = false;
     app = argv[0];
     dir = "";
     outf = "";
     logf = "";
+    kv = 1;
     std::string fstr = "";
 
     while ((c = getopt(argc, argv, params)) != -1) {
@@ -57,6 +59,9 @@ AppConfig::AppConfig(int argc, char** argv){
             break;
         case 'H':
             help = true;
+            break;
+        case 'k':
+            kv = atoi(optarg);
             break;
         }
     }
@@ -94,6 +99,12 @@ bool AppConfig::validate(std::ostream& ots){
             ots << "Error opening output file : " << logf << std::endl;
             validCfg = false;
         }
+    }
+
+    if(kv <= 0){
+        ots << "Invalid k value (" << kv
+            << "). Using default value of 1" << std::endl;
+        kv = 1;
     }
 
     if(!validCfg){

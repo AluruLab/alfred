@@ -15,6 +15,7 @@ struct AppConfig{
     bool help;
     std::ofstream ofs;
     std::ofstream lfs;
+    int kv;
 
     void printHelp(std::ostream& ots);
     bool validate(std::ostream& ots);
