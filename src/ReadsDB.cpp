@@ -422,3 +422,8 @@ unsigned ReadsDB::getReadLengthById(const unsigned& grID){
     assert(readID < m_readLengths[fofRead].size());
     return m_readLengths[fofRead][readID];
 }
+
+const std::string& ReadsDB::getFileName(const unsigned& idx){
+    assert(idx < m_readFiles.size());
+    return m_readFiles[idx];
+}

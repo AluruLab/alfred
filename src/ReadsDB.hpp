@@ -50,6 +50,8 @@ public:
     unsigned getReadLength(const unsigned& fileID, const unsigned& readID);
     int getFileOfRead(const unsigned& readID) const;
     unsigned getReadsCount(){ return m_nReads; };
+    unsigned getFilesCount(){ return m_readFiles.size(); };
+    const std::string& getFileName(const unsigned& idx);
     const std::string& getRead(const unsigned& fileID, const unsigned& readID);
 
     // Functions to retrieve information, when

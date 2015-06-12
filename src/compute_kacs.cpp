@@ -45,10 +45,14 @@ void compute_kdist(const ivec_t lcpkXY[2][2], double& dxy){
 
 void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
     unsigned nReads = rdb.getReadsCount();
+    unsigned nFiles = rdb.getFilesCount();
     assert(nReads >= 2);
+    assert(nReads == nFiles);
 
-    for(unsigned i  = 0; i < nReads; i++){
-        for(unsigned j = i + 1; j < nReads; j++){
+    cfg.ofs << nReads << std::endl;
+    for(int i  = nReads - 1; i >= 0; i--){
+        cfg.ofs << rdb.getFileName(i) << "\t";
+        for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
             double xlen = sx.size(), ylen = sy.size();
@@ -57,11 +61,13 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
             lxy.compute();
             compute_kacs(lxy.getkLCP(), acsxy, acsyx);
             compute_kdist(xlen, ylen, acsxy, acsyx, kdxy);
-            cfg.ofs << i << "\t" << j << "\t"
-                    << sx.size() << "\t" << sy.size() << "\t"
-                    << acsxy << "\t" << acsyx << "\t"
-                    << kdxy << std::endl;
+            // cfg.ofs << i << "\t" << j << "\t"
+            //         << sx.size() << "\t" << sy.size() << "\t"
+            //         << acsxy << "\t" << acsyx << "\t"
+            //         << kdxy << std::endl;
+            cfg.ofs << kdxy << "\t";
         }
+        cfg.ofs << std::endl;
     }
 
 }
