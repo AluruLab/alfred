@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
                      AppConfig& cfg) : m_aCfg(cfg){
