@@ -76,6 +76,7 @@ void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
                 process_pair_naive(i, j, rdb, cfg);
             else
                 process_pair(i, j, rdb, cfg);
+            break;
         }
     }
 }

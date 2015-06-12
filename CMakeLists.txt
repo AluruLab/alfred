@@ -27,7 +27,8 @@ include_directories("${PROJECT_SOURCE_DIR}/src/sdsl")
 ADD_EXECUTABLE(${PROJECT_NAME_STR}.x
                src/sdsl/bits.cpp src/sdsl/construct_sa.cpp
                src/ReadsDB.cpp src/AppConfig.cpp
-               src/ExactLCPk.cpp src/NaiveLCPk.cpp src/compute_klcp.cpp src/main.cpp)
+               src/ExactLCPk.cpp src/NaiveLCPk.cpp src/compute_klcp.cpp
+               src/compute_kacs.cpp src/main.cpp)
 
 #Link SDSL library
 target_link_libraries(${PROJECT_NAME_STR}.x divsufsort divsufsort64)

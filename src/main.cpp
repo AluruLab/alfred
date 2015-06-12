@@ -1,6 +1,7 @@
 #include "ReadsDB.hpp"
 #include "AppConfig.hpp"
 #include "compute_klcp.hpp"
+#include "compute_kacs.hpp"
 
 #include <iostream>
 #include <ctime>
@@ -26,7 +27,13 @@ int main(int argc, char** argv){
     clock_t klcpStart = clock();
 
     // estimate k-lcp
-    compute_klcp(rdb, acfg);
+    //compute_klcp(rdb, acfg);
+
+    // estimate k-acs
+    if(acfg.naive)
+        compute_kacs_naive(rdb, acfg);
+    else
+        compute_kacs(rdb, acfg);
 
     // write time taken
     acfg.lfs << "\"klcp_time_secs\" : "
