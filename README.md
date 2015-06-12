@@ -11,7 +11,7 @@ Compute ACS using the prefix-chopping algorithm for every pair of strings presen
 
 ### Dependices present as submodule.
 * [googletest](https://code.google.com/p/googletest/) is included as git submodule.
-* [libdivsufsort](http://github.com/stxxl/stxxl) libraries are copied in the directory.
+* [libdivsufsort](https://github.com/y-256/libdivsufsort) libraries are copied in the directory.
 
 ## Compilation
 
@@ -32,12 +32,12 @@ Finally, build the executable 'arakawa.x'.
 
 ## Running
 
-Place the files in a directory and run with the -i option for input directory. -o option is for output file and -k is provided to allow the number of errors.
-An example shown below
+Place the input sequences into fasta files, with each sequence placed in a separate file, in a directory. Run the program while providing this input directory as -i option, the output file as the -o option, and the number of mismatches to allow is given as -k option.
+An example is shown below:
 
     build/arakawa.x -i data/primates/ -o acs.primates.k3.out -k 3
 
 The above command runs the ACS_k prefix-chopping algorithm for the input
-files given in the directory "data/primates" and produces the output to
+files in the directory "data/primates" and produces the output to
 the file "acs.primates.k3.out". It allows three mismatches, while
 matching for longest common prefix in the ACS_k computation.
