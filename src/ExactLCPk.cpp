@@ -69,6 +69,8 @@ int32_t ExactLCPk::rightBound0(int32_t curLeaf){
 
 void ExactLCPk::chopSuffixes0(const InternalNode& uNode,
                               std::vector<L1Suffix>& leaves){
+    if(uNode.m_leftBound == -1 || uNode.m_rightBound == -1)
+        return;
 
     assert(uNode.m_rightBound > uNode.m_leftBound);
     assert(uNode.m_leftBound >= 2);
