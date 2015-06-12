@@ -23,12 +23,10 @@ void compute_kacs(const ivec_t lcpkXY[2][2],
     acsyx = acsyx / (double)lcpkXY[1][1].size();
 }
 
-void compute_kdist(const ivec_t lcpkXY[2][2],
+void compute_kdist(const double& xlen, const double& ylen,
+                   const double& acsxy, const double& acsyx,
                    double& dxy){
-    double acsxy, acsyx, dpxy, dpyx;
-    compute_kacs(lcpkXY, acsxy, acsyx);
-    double xlen = (double)lcpkXY[0][1].size();
-    double ylen = (double)lcpkXY[1][1].size();
+    double dpxy, dpyx;
     dpxy = std::log(ylen) / acsxy;
     dpxy -= correct_term(xlen);
     dpyx = std::log(xlen) / acsyx;
@@ -36,6 +34,14 @@ void compute_kdist(const ivec_t lcpkXY[2][2],
     dxy = (dpxy + dpyx)/2.0;
 }
 
+
+void compute_kdist(const ivec_t lcpkXY[2][2], double& dxy){
+    double acsxy, acsyx;
+    compute_kacs(lcpkXY, acsxy, acsyx);
+    double xlen = (double)lcpkXY[0][1].size();
+    double ylen = (double)lcpkXY[1][1].size();
+    compute_kdist(xlen, ylen, acsxy, acsyx, dxy);
+}
 
 void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
     unsigned nReads = rdb.getReadsCount();
@@ -45,13 +51,16 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
         for(unsigned j = i + 1; j < nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
-            double acsxy, acsyx;
+            double xlen = sx.size(), ylen = sy.size();
+            double acsxy, acsyx, kdxy;
             ExactLCPk lxy(sx, sy, cfg); // construct suffix array
             lxy.compute();
             compute_kacs(lxy.getkLCP(), acsxy, acsyx);
+            compute_kdist(xlen, ylen, acsxy, acsyx, kdxy);
             cfg.ofs << i << "\t" << j << "\t"
                     << sx.size() << "\t" << sy.size() << "\t"
-                    << acsxy << "\t" << acsyx << std::endl;
+                    << acsxy << "\t" << acsyx << "\t"
+                    << kdxy << std::endl;
         }
     }
 
@@ -65,13 +74,16 @@ void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
         for(unsigned j = i + 1; j < nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
-            double acsxy, acsyx;
+            double xlen = sx.size(), ylen = sy.size();
+            double acsxy, acsyx, kdxy;
             NaiveLCPk lxy(sx, sy, cfg); // construct suffix array
             lxy.compute();
             compute_kacs(lxy.getkLCP(), acsxy, acsyx);
+            compute_kdist(xlen, ylen, acsxy, acsyx, kdxy);
             cfg.ofs << i << "\t" << j << "\t"
                     << sx.size() << "\t" << sy.size() << "\t"
-                    << acsxy << "\t" << acsyx << std::endl;
+                    << acsxy << "\t" << acsyx << "\t"
+                    << kdxy << std::endl;
         }
     }
 

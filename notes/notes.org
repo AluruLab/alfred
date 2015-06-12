@@ -35,8 +35,10 @@
   - $LCP$ is constructed for $R$. $LCP[i]$ is least common prefix of
     suffixes corresponding to $SA[i]$ and $SA[i - 1]$. $LCP[0]$ is set
     as $0$.
-  - $LCP$ is kept of size $1 + |R|$, just to simplify the last corner
-    cases.
+  - $RMQ$ is the range minimum query table constructed for
+    $LCP$. $RMQ(i, j)$, $i \leq j$ returns the minimum index $k$ of
+    $LCP$ ($i \leq k \leq j$) for which the value is minimum in the
+    range $LCP[i], \ldots, LCP[j]$.
 
 * Implementation
 
@@ -50,11 +52,16 @@
     point we update $LCP_k$ using the suffixes collected at the current
     search frontier. We continue the depth-first search until we run out
     of suffixes.
+  - Output is a 3-dimensional array $MLCP$, where $LCP_k[0][1][i]$ is
+    $\max_{Y_i} LCP_k(X_i, Y_i)$ and $LCP_k[0][0][i]$ is
+    $\arg \max_{Y_i} LCP_k(X_i, Y_i)$. Similarly $LCP_k[1]$ records the
+    corresponding values for $Y$ with respect to $X$.
+
 
 ** Suffix Representation
   - We consider the suffixes under the context of a specific internal
-    node $u$. $u$ is either from a suffix tree (at search depth 0) or a
-    suffix trie (at search depths $1, \ldots, k-1$).
+    node $u$. $u$ is present in from a suffix tree (at search depth 0)
+    or a suffix trie (at search depths $1, \ldots, k-1$).
   - We represent the suffixes of the trie using the following tuple
           \[(c, c', src)\]
 
@@ -90,8 +97,8 @@
     and \$ -- the end of first and second strings -- respectively.
   - As we chop off suffixes and reach towards the end of the strings, we
     end up in either at the first or second entry of the suffix
-    array. We ignore these suffixes, when we proceed to the next search
-    level.
+    array. When we proceed to the next search level, we ignore these
+    suffixes.
 
 ** Compute $LCP_k$
   - Main function of computing $LCP_k$, each function being called is
@@ -109,7 +116,7 @@
   \begin{codebox}
   \Procname{$\proc{Recursive-Compute-LCPK}(u, S_{j-1}, k)$}
   \li \If $k = 0$
-  \li \Do  $\proc{Update-LCPK}(u, S_{j - 1})$
+  \li \Do  $\proc{Update-MLCP}(u, S_{j - 1})$
   \li     \Return
       \End
   \li $U_j \gets \proc{Trie-Internal-Nodes}(u, S_{j - 1})$
@@ -154,13 +161,13 @@
         \Do
     \li    \If $LCP[sp + 1] >= LCP[leaf + 1]$
     \li    \Then  \kw{break} \End
-    \li    Decrement $sp$
+    \li    $sp \gets sp - 1$
         \End
     \li \While $ep < |SA| - 1$
         \Do
     \li    \If $LCP[ep + 1] >= LCP[leaf + 1]$
     \li     \Then  \kw{break} \End
-    \li    Increment $ep$
+    \li     $ep \gets ep + 1$
         \End
     \li \Return $(sp, ep, LCP[leaf + 1], 0)$
   \end{codebox}
@@ -224,4 +231,27 @@
   \li Remove invalid suffixes in $S_j$ (indices beyond $|X| - 1$ or $|Y| - 1$)
   \li Sort $S_j$ based on $c'$
   \li \Return $S_j$
+  \end{codebox}
+
+** Update $MLCP$ Pass
+
+  \begin{codebox}
+  \Procname{$\proc{Update-MLCP-LtoR}(u, S_j)$}
+  \li $p \gets 0$; $q \gets 1$; $L_H[0] = 0$; $L_H[1] = 1 + |X|$
+  \li \While $q < |SA|$ \kw{and} $src(S_j[p]) != src(S_j[q])$
+  \li \Do $p \gets q$; $q \gets q + 1$
+  \End
+  \li \While $q < |SA|$
+  \li \Do $i \gets c(S_j[q]) - \delta(u) - L_H[src(S_j[q])]$
+  \li  $j \gets c(S_j[p]) - \delta(u) - L_H[src(S_j[p])]$
+  \li  $rmin \gets RMQ(c'(S_j[p]), c'(S_j[q]))$
+  \li  $score \gets d(u) + \delta(u) + rmin + 1$
+  \li  \If $score > MLCP[src(S_j[q])][1][i]$
+  \li    \Do $MLCP[src(S_j[q])][1][i]  \gets score$;
+  \li        $MLCP[src(S_j[q])][0][i] \gets j$
+  \End
+  \li  $q_x = q$; $q \gets q + 1$
+  \li \If $src(S_j[p]) == src(S_j[q])$
+  \li  \Then $p = q_x$ \End
+  \End
   \end{codebox}
