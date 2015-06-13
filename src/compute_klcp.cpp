@@ -36,11 +36,10 @@ void process_pair_naive(unsigned i, unsigned j, ReadsDB& rdb,
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
-    cfg.kv = cfg.kv == 0 ? 1 : cfg.kv;
     NaiveLCPk lxy(sx, sy, cfg);
     lxy.compute();
-#ifdef DEBUG_KLCP
-    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.lfs);
+#ifndef DEBUG_KLCP
+    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.lfs, "lcpk");
 #endif
 }
 
@@ -59,8 +58,8 @@ void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
 #ifdef DEBUG
     cfg.lfs << " []]," << std::endl;
 #endif
-#ifdef DEBUG_KLCP
-    print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs);
+#ifndef DEBUG_KLCP
+    print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs, "lcpk");
 #endif
 }
 

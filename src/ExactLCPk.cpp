@@ -9,7 +9,7 @@
 
 ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
                      AppConfig& cfg) : m_aCfg(cfg){
-    m_kv = m_aCfg.kv > 0 ? m_aCfg.kv : 1;
+    m_kv = m_aCfg.kv > 0 ? m_aCfg.kv : 0;
     m_strXY = sx + "#" + sy + "$";
     m_strLengths[0] = sx.size(); m_strLengths[1] = sy.size();
     m_strLenPfx[0] = sx.size(); m_strLenPfx[1] = sx.size() + 1 + sy.size();
@@ -94,6 +94,32 @@ void ExactLCPk::chopSuffixes0(const InternalNode& uNode,
     }
     //   sort tuples by i'
     std::sort(leaves.begin(), leaves.end());
+}
+
+void ExactLCPk::selectSuffixes0(const InternalNode& uNode,
+                                std::vector<L1Suffix>& leaves){
+    if(uNode.m_leftBound == -1 || uNode.m_rightBound == -1)
+        return;
+
+    assert(uNode.m_rightBound > uNode.m_leftBound);
+    assert(uNode.m_leftBound >= 2);
+    assert(uNode.m_rightBound < (int32_t)m_gsa.size());
+
+    leaves.clear();
+    leaves.resize(uNode.m_rightBound - uNode.m_leftBound + 1);
+
+    //   collect tuples for each position (going left and right)
+    //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
+    for(int32_t idx = uNode.m_leftBound, i = 0;
+            idx <= uNode.m_rightBound; idx++, i++){
+        int32_t spos = m_gsa[idx];
+        int32_t rs = spos < m_strLengths[0] ? 0 : 1;
+        // crossing boundary
+        int32_t esa = spos <= m_strLenPfx[rs] ? idx : -1;
+
+        L1Suffix cm(spos, esa, rs);
+        leaves[i] = cm;
+    }
 }
 
 void ExactLCPk::eliminateDupes(std::vector<InternalNode>& uNodes){
@@ -304,7 +330,7 @@ void ExactLCPk::compute0(){
     // resize the LCP arrays
     for(unsigned i = 0; i < 2; i++){
         m_klcpXY[i][0].resize(m_strLengths[i], 0);
-        m_klcpXY[i][1].resize(m_strLengths[i], 1);
+        m_klcpXY[i][1].resize(m_strLengths[i], 0);
     }
 
     // get all the internal nodes
@@ -313,15 +339,17 @@ void ExactLCPk::compute0(){
 
     // for each internal node
     for(auto nit = uNodes.begin(); nit != uNodes.end(); nit++){
+        InternalNode uNode = *nit;
 #ifdef DEBUG
-        (*nit).dwriteln(m_aCfg.lfs);
+        uNode.dwriteln(m_aCfg.lfs);
 #endif
         //   collect tuples for each position (going left and right)
         //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
-        std::vector<L1Suffix> choppedSfxs;
-        chopSuffixes0(*nit, choppedSfxs);
+        std::vector<L1Suffix> leaves;
+        selectSuffixes0(uNode, leaves);
+        uNode.m_stringDepth = -1; // just to let update use the LCP
         // update lcp using sorted tuples using a double pass
-        updateExactLCPk(*nit, choppedSfxs);
+        updateExactLCPk(uNode, leaves);
     }
 }
 
@@ -384,5 +412,5 @@ void ExactLCPk::compute(){
 
 void ExactLCPk::computeTest(int k){
     m_kv= k;
-    computeK();
+    compute();
 }

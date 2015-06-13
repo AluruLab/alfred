@@ -47,6 +47,41 @@ static inline bool ends_with(std::string const &value,
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+#ifdef WIN32
+struct MatchPathSeparator
+{
+    bool operator()( char ch ) const
+    {
+        return ch == '\\' || ch == '/';
+    }
+};
+#else
+struct MatchPathSeparator
+{
+    bool operator()( char ch ) const
+    {
+        return ch == '/';
+    }
+};
+#endif
+
+static inline std::string basename( std::string const& pathname )
+{
+    return std::string(
+        std::find_if( pathname.rbegin(), pathname.rend(),
+                      MatchPathSeparator() ).base(),
+        pathname.end() );
+}
+
+static inline std::string removeExtension( std::string const& filename )
+{
+    std::string::const_reverse_iterator
+                        pivot
+            = std::find( filename.rbegin(), filename.rend(), '.' );
+    return pivot == filename.rend()
+        ? filename
+        : std::string( filename.begin(), pivot.base() - 1 );
+}
 static inline char bits_to_char(unsigned value){
     switch(value) {
     case 0:

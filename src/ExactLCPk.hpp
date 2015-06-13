@@ -252,6 +252,8 @@ private:
                        const std::vector<L1Suffix>& uLeaves,
                        std::vector<L1Suffix>& trieLeaves);
     void compute0();
+    void selectSuffixes0(const InternalNode& uNode,
+                         std::vector<L1Suffix>& leaves);
 public:
     ExactLCPk(const std::string& x, const std::string& y,
               AppConfig& cfg);

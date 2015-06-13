@@ -39,6 +39,15 @@ protected:
 
 };
 
+TEST_F(DNA15LCPTest, DNA15LCPZeroCheck){
+    pelxy->computeTest(0);
+    pnlxy->computeTest(0);
+    ASSERT_EQ(pelxy->getkLCP()[0][0].size(), pnlxy->getkLCP()[0][0].size());
+    ASSERT_EQ(pelxy->getkLCP()[1][0].size(), pnlxy->getkLCP()[1][0].size());
+    ASSERT_EQ(pelxy->getkLCP()[0][1], pnlxy->getkLCP()[0][1]);
+    ASSERT_EQ(pelxy->getkLCP()[1][1], pnlxy->getkLCP()[1][1]);
+}
+
 TEST_F(DNA15LCPTest, DNA15LCPOneCheck){
     pelxy->computeTest(1);
     pnlxy->computeTest(1);

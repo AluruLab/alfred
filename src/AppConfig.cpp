@@ -10,7 +10,7 @@ void AppConfig::write(std::ostream& ots){
     ots << " \t\"out_file\" : \"" << outf << "\"," << std::endl;
     ots << " \t\"log_file\" : \"" << logf << "\"," << std::endl;
     ots << " \t\"kvalue\"   : \"" << kv << "\"," << std::endl;
-    ots << " \t\"naive\"    : \"" << kv << "\"" << std::endl;
+    ots << " \t\"naive\"    : \"" << naive << "\"" << std::endl;
     ots << " }," << std::endl;
 }
 
@@ -121,7 +121,7 @@ bool AppConfig::validate(std::ostream& ots){
         }
     }
 
-    if(kv <= 0){
+    if(kv < 0){
         ots << "Invalid k value (" << kv
             << "). Using default value of 1" << std::endl;
         kv = 1;
