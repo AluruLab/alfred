@@ -54,7 +54,7 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
         std::string orgName = removeExtension(basename(rdb.getFileName(i)));
         if(orgName.size() > 10)
             orgName = orgName.substr(0, 10);
-        cfg.ofs << orgName << "\t";
+        cfg.ofs << orgName << "    ";
         for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
@@ -68,7 +68,7 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
             //         << sx.size() << "\t" << sy.size() << "\t"
             //         << acsxy << "\t" << acsyx << "\t"
             //         << kdxy << std::endl;
-            cfg.ofs << kdxy << "\t";
+            cfg.ofs << kdxy << ((j == ((int)nReads - 1)) ? "" : " ");
         }
         cfg.ofs << std::endl;
     }
@@ -85,7 +85,7 @@ void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
         std::string orgName = removeExtension(basename(rdb.getFileName(i)));
         if(orgName.size() > 10)
             orgName = orgName.substr(0, 10);
-        cfg.ofs << orgName << "\t";
+        cfg.ofs << orgName << "    ";
         for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
@@ -99,7 +99,7 @@ void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
             //         << sx.size() << "\t" << sy.size() << "\t"
             //         << acsxy << "\t" << acsyx << "\t"
             //         << kdxy << std::endl;
-            cfg.ofs << kdxy << "\t";
+            cfg.ofs << kdxy << ((j == ((int)nReads - 1)) ? "" : " ");
         }
         cfg.ofs << std::endl;
     }
