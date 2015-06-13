@@ -5,7 +5,7 @@
 
 double correct_term(double xLen){
     if(xLen > 0)
-        return 2 * (std::log(xLen)) / xLen;
+        return 2 * (std::log10(xLen)) / xLen;
     return 0;
 }
 
@@ -28,9 +28,9 @@ void compute_kdist(const double& xlen, const double& ylen,
                    const double& acsxy, const double& acsyx,
                    double& dxy){
     double dpxy, dpyx;
-    dpxy = std::log(ylen) / acsxy;
+    dpxy = std::log10(ylen) / acsxy;
     dpxy -= correct_term(xlen);
-    dpyx = std::log(xlen) / acsyx;
+    dpyx = std::log10(xlen) / acsyx;
     dpyx -= correct_term(ylen);
     dxy = (dpxy + dpyx)/2.0;
 }
@@ -44,17 +44,35 @@ void compute_kdist(const ivec_t lcpkXY[2][2], double& dxy){
     compute_kdist(xlen, ylen, acsxy, acsyx, dxy);
 }
 
-void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
-    unsigned nReads = rdb.getReadsCount();
-    assert(nReads >= 2);
-    assert(nReads == rdb.getFilesCount());
-
+void write_dmat(std::vector<std::vector<double>>& dmat,
+                ReadsDB& rdb, AppConfig& cfg)
+{
+    unsigned nReads = dmat.size();
     cfg.ofs << nReads << std::endl;
-    for(int i  = nReads - 1; i >= 0; i--){
+    for(unsigned i=0; i < nReads; i++){
         std::string orgName = removeExtension(basename(rdb.getFileName(i)));
         if(orgName.size() > 10)
             orgName = orgName.substr(0, 10);
         cfg.ofs << orgName << "    ";
+        for(unsigned j = 0; j < nReads; j++){
+            double kdxy = dmat[i][j];
+            cfg.ofs << kdxy << ((j == nReads - 1) ? "" : " ");
+        }
+        cfg.ofs << std::endl;
+    }
+
+}
+
+void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
+    unsigned nReads = rdb.getReadsCount();
+    assert(nReads >= 2);
+    assert(nReads == rdb.getFilesCount());
+    std::vector<std::vector<double>> dmat;
+    dmat.resize(nReads);
+    for(unsigned i = 0;i < nReads; i++)
+        dmat[i].resize(nReads);
+
+    for(int i  = nReads - 1; i >= 0; i--){
         for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
@@ -68,24 +86,22 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
             //         << sx.size() << "\t" << sy.size() << "\t"
             //         << acsxy << "\t" << acsyx << "\t"
             //         << kdxy << std::endl;
-            cfg.ofs << kdxy << ((j == ((int)nReads - 1)) ? "" : " ");
+            dmat[i][j] = dmat[j][i] = kdxy;
         }
-        cfg.ofs << std::endl;
     }
-
+    write_dmat(dmat, rdb, cfg);
 }
 
 void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
     unsigned nReads = rdb.getReadsCount();
     assert(nReads >= 2);
     assert(nReads == rdb.getFilesCount());
+    std::vector<std::vector<double>> dmat;
+    dmat.resize(nReads);
+    for(unsigned i = 0;i < nReads; i++)
+        dmat[i].resize(nReads);
 
-    cfg.ofs << nReads << std::endl;
     for(int i  = nReads - 1; i >= 0; i--){
-        std::string orgName = removeExtension(basename(rdb.getFileName(i)));
-        if(orgName.size() > 10)
-            orgName = orgName.substr(0, 10);
-        cfg.ofs << orgName << "    ";
         for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
             const std::string& sy = rdb.getReadById(j);
@@ -99,9 +115,8 @@ void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
             //         << sx.size() << "\t" << sy.size() << "\t"
             //         << acsxy << "\t" << acsyx << "\t"
             //         << kdxy << std::endl;
-            cfg.ofs << kdxy << ((j == ((int)nReads - 1)) ? "" : " ");
+            dmat[i][j] = dmat[j][i] = kdxy;
         }
-        cfg.ofs << std::endl;
     }
-
+    write_dmat(dmat, rdb, cfg);
 }
