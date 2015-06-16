@@ -27,13 +27,9 @@ int main(int argc, char** argv){
     clock_t klcpStart = clock();
 
     // estimate k-lcp
-    //compute_klcp(rdb, acfg);
+    // compute_klcp(rdb, acfg);
 
-    // estimate k-acs
-    if(acfg.naive)
-        compute_kacs_naive(rdb, acfg);
-    else
-        compute_kacs(rdb, acfg);
+    compute_kacs(rdb, acfg);
 
     // write time taken
     acfg.lfs << "\"klcp_time_secs\" : "

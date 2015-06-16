@@ -16,7 +16,8 @@ struct AppConfig{
     std::ofstream ofs;
     std::ofstream lfs;
     int kv;
-    bool naive;
+    int method;
+    int extend;
 
     void printHelp(std::ostream& ots);
     bool validate(std::ostream& ots);
@@ -24,7 +25,7 @@ struct AppConfig{
     AppConfig(const std::vector<std::string>& files,
               const std::string& of,
               const std::string& lf,
-              int kval, bool nve);
+              int kval, int mt, int ext = 0);
     AppConfig(int argc, char** argv);
     ~AppConfig();
 };

@@ -5,22 +5,22 @@ NaiveLCPk::NaiveLCPk(const std::string& x, const std::string& y,
     m_kv = m_aCfg.kv;
 }
 
-void NaiveLCPk::runLCPk(const std::string& sx, const std::string& sy,
+void NaiveLCPk::runLCPk(const std::string& sa, const std::string& sb,
                         int tidx){
-    for(unsigned xstart = 0; xstart < sx.size(); xstart++){
-        for(unsigned ystart = 0; ystart < sy.size(); ystart++){
+    for(unsigned astart = 0; astart < sa.size(); astart++){
+        for(unsigned bstart = 0; bstart < sb.size(); bstart++){
             unsigned howfar = 0, kdx = 0;
-            while((ystart + howfar < sy.size()) &&
-                  (xstart + howfar < sx.size())){
-                if(sx[xstart + howfar] != sy[ystart + howfar])
+            while((bstart + howfar < sb.size()) &&
+                  (astart + howfar < sa.size())){
+                if(sa[astart + howfar] != sb[bstart + howfar])
                     kdx += 1;
                 if(m_kv < (int)kdx)
                     break;
                 howfar++;
             }
-            if(m_klcpXY[tidx][1][xstart] < (int32_t)howfar){
-                m_klcpXY[tidx][0][xstart] = (int32_t)ystart;
-                m_klcpXY[tidx][1][xstart] = (int32_t)howfar;
+            if(m_klcpXY[tidx][1][astart] < (int32_t)howfar){
+                m_klcpXY[tidx][0][astart] = (int32_t)bstart;
+                m_klcpXY[tidx][1][astart] = (int32_t)howfar;
             }
         }
     }

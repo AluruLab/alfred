@@ -20,6 +20,7 @@ public:
     auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
     }
+    void print(std::ostream& ){}
 };
 
 #endif /* NAIVELCPK_H */

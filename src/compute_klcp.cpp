@@ -5,6 +5,7 @@
 
 #include "ExactLCPk.hpp"
 #include "NaiveLCPk.hpp"
+#include "HeuristicLCPk.hpp"
 
 void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
                 const ivec_t lcpKXY[2][2], const unsigned& k,
@@ -31,26 +32,16 @@ void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
 
 }
 
-void process_pair_naive(unsigned i, unsigned j, ReadsDB& rdb,
-                        AppConfig& cfg){
-    const std::string& sx = rdb.getReadById(i);
-    const std::string& sy = rdb.getReadById(j);
-
-    NaiveLCPk lxy(sx, sy, cfg);
-    lxy.compute();
-#ifndef DEBUG_KLCP
-    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.lfs, "lcpk");
-#endif
-}
-
-void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
+template<typename LCPk>
+void klcp_pair_factory(unsigned i, unsigned j, ReadsDB& rdb,
+                      AppConfig& cfg){
 #ifdef DEBUG
     cfg.lfs << "\"klcp_debug\"      : [" << std::endl;
 #endif
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
-    ExactLCPk lxy(sx, sy, cfg); // construct suffix array
+    LCPk lxy(sx, sy, cfg); // construct suffix array
 #ifdef DEBUG
     lxy.print(cfg.lfs);
 #endif
@@ -61,8 +52,8 @@ void process_pair(unsigned i, unsigned j, ReadsDB& rdb, AppConfig& cfg) {
 #ifndef DEBUG_KLCP
     print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs, "lcpk");
 #endif
-}
 
+}
 
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
     // TODO
@@ -71,10 +62,12 @@ void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
 
     for(unsigned i  = 0; i < nReads; i++){
         for(unsigned j = i + 1; j < nReads; j++){
-            if(cfg.naive)
-                process_pair_naive(i, j, rdb, cfg);
+            if(cfg.method == 1)
+                klcp_pair_factory<NaiveLCPk>(i, j, rdb, cfg);
+            else if(cfg.method == 2)
+                klcp_pair_factory<HeuristicLCPk>(i, j, rdb, cfg);
             else
-                process_pair(i, j, rdb, cfg);
+                klcp_pair_factory<ExactLCPk>(i, j, rdb, cfg);
             break;
         }
     }

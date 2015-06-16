@@ -13,7 +13,7 @@ set(SDSL_SOURCE_DIR "${PROJECT_SOURCE_DIR}/ext/sdsl-lite")
 
 # flags
 set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # include the sdsl files and googletest library
@@ -27,7 +27,8 @@ include_directories("${PROJECT_SOURCE_DIR}/src/sdsl")
 ADD_EXECUTABLE(${PROJECT_NAME_STR}.x
                src/sdsl/bits.cpp src/sdsl/construct_sa.cpp
                src/ReadsDB.cpp src/AppConfig.cpp
-               src/ExactLCPk.cpp src/NaiveLCPk.cpp src/compute_klcp.cpp
+               src/ExactLCPk.cpp src/NaiveLCPk.cpp src/HeuristicLCPk.cpp
+               src/compute_klcp.cpp
                src/compute_kacs.cpp src/main.cpp)
 
 #Link SDSL library
@@ -45,7 +46,8 @@ file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
 add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES}
                src/sdsl/bits.cpp src/sdsl/construct_sa.cpp
                src/ReadsDB.cpp src/AppConfig.cpp
-               src/ExactLCPk.cpp src/NaiveLCPk.cpp src/compute_klcp.cpp)
+               src/ExactLCPk.cpp src/NaiveLCPk.cpp  src/HeuristicLCPk.cpp
+               src/compute_klcp.cpp)
 add_dependencies(${PROJECT_TEST_NAME} gtest gtest_main)
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories("${PROJECT_SOURCE_DIR}/src")

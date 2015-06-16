@@ -140,12 +140,12 @@ private:
     void updateExactLCPk(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
     void eliminateDupes(std::vector<InternalNode>& uNodes);
-
+public:
     inline int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2){
         if(t1 < 0 || t2 < 0)
             return 0;
         int32_t mxv = std::max(t1, t2);
-        if(mxv > (int32_t)m_gsa.size())
+        if(mxv >= (int32_t)m_gsa.size())
             return 0;
         int32_t mnv = std::min(t1, t2);
         int32_t rpos = m_rangeMinQuery(mnv == mxv ? mnv : (mnv + 1), mxv);
@@ -156,6 +156,20 @@ private:
         return rangeMinLCP(m1.m_errSAPos, m2.m_errSAPos);
     }
 
+    inline int32_t sufRangeMinLCP(const int32_t& t1, const int32_t& t2){
+        if(t1 < 0 || t2 < 0)
+            return 0;
+        if(std::max(t1, t2) >= (int32_t)m_gsa.size())
+            return 0;
+        int32_t st1 = m_gisa[t1];
+        int32_t st2 = m_gisa[t2];
+        int32_t mxv = std::max(st1, st2);
+        int32_t mnv = std::min(st1, st2);
+        int32_t rpos = m_rangeMinQuery(mnv == mxv ? mnv : (mnv + 1), mxv);
+        return m_glcp[rpos];
+    }
+
+private:
     inline int32_t updatePassLCP(const int32_t& t1, const int32_t& t2){
         if(t1 < 0 || t2 < 0)
             return 0;
@@ -259,7 +273,7 @@ public:
               AppConfig& cfg);
     void print(std::ostream& ofs);
     void compute();
-    auto getkLCP() -> const ivec_t (&)[2][2] {
+    auto getkLCP() -> ivec_t (&)[2][2] {
         return m_klcpXY;
     }
     void computeTest(int k);

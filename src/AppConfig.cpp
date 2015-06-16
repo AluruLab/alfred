@@ -3,6 +3,10 @@
 #include <unistd.h>
 
 // PARAMETERS -------------------------------------------------------
+
+const char* method_name(int method){
+    return (method == 1) ? "naive" : ((method == 2) ? "hueristic" : "exact");
+}
 void AppConfig::write(std::ostream& ots){
     ots << "\"params\"      : {" << std::endl;
     ots << " \t\"in_dir\"   : \"" << dir << "\"," << std::endl;
@@ -10,7 +14,7 @@ void AppConfig::write(std::ostream& ots){
     ots << " \t\"out_file\" : \"" << outf << "\"," << std::endl;
     ots << " \t\"log_file\" : \"" << logf << "\"," << std::endl;
     ots << " \t\"kvalue\"   : \"" << kv << "\"," << std::endl;
-    ots << " \t\"naive\"    : \"" << naive << "\"" << std::endl;
+    ots << " \t\"method\"   : \"" << method_name(method) << "\"" << std::endl;
     ots << " }," << std::endl;
 }
 
@@ -25,7 +29,8 @@ void AppConfig::printHelp(std::ostream& ots){
         << "\t -o <file>  path to output file (should be writable)" << std::endl
         << "\t -l <file>  path to log file (should be writable) ["
         << "/path/to/output/file.log]" << std::endl
-        << "\t -k <int>   number of mismatches [1]" << std::endl
+        << "\t -k <int>   exact measure number of mismatches [1]" << std::endl
+        << "\t -x <int>   heuristic extension length " << std::endl
         << "\t -n         estimate lcp using O(n^2) method" << std::endl
         << "\t -h         print this help " << std::endl
         << std::endl;
@@ -33,14 +38,15 @@ void AppConfig::printHelp(std::ostream& ots){
 
 AppConfig::AppConfig(int argc, char** argv){
     char c;
-    const char* params = "i:l:f:o:k:nhH";
+    const char* params = "i:l:f:o:k:x:nhH";
     help = false;
     app = argv[0];
     dir = "";
     outf = "";
     logf = "";
     kv = 1;
-    naive = false;
+    extend = 0;
+    method = 0;
     std::string fstr = "";
 
     while ((c = getopt(argc, argv, params)) != -1) {
@@ -68,7 +74,11 @@ AppConfig::AppConfig(int argc, char** argv){
             kv = atoi(optarg);
             break;
         case 'n':
-            naive = true;
+            method |= 1;
+            break;
+        case 'x':
+            extend = atoi(optarg);
+            method |= 2;
             break;
         }
     }
@@ -79,14 +89,15 @@ AppConfig::AppConfig(int argc, char** argv){
 AppConfig::AppConfig(const std::vector<std::string>& files,
                      const std::string& of,
                      const std::string& lf,
-                     int kval, bool nve){
+                     int kval, int mt, int ext){
     app = "testApp";
     ifiles = files;
     outf = of;
     logf = lf;
     kv = kval;
-    naive = nve;
+    method = mt;
     help = false;
+    extend = ext;
 }
 
 bool AppConfig::validate(std::ostream& ots){
@@ -125,6 +136,12 @@ bool AppConfig::validate(std::ostream& ots){
         ots << "Invalid k value (" << kv
             << "). Using default value of 1" << std::endl;
         kv = 1;
+    }
+
+    if(extend < 0){
+        ots << "Invalid extension (" << extend
+            << "). Using default setting of 5." << std::endl;
+        extend = 5;
     }
 
     if(!validCfg){

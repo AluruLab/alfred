@@ -2,6 +2,7 @@
 #include "util.hpp"
 #include "NaiveLCPk.hpp"
 #include "ExactLCPk.hpp"
+#include "HeuristicLCPk.hpp"
 
 double correct_term(double xLen){
     if(xLen > 0)
@@ -63,7 +64,8 @@ void write_dmat(std::vector<std::vector<double>>& dmat,
 
 }
 
-void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
+template<typename LCPk>
+void kacs_factory(ReadsDB& rdb, AppConfig& cfg){
     unsigned nReads = rdb.getReadsCount();
     assert(nReads >= 2);
     assert(nReads == rdb.getFilesCount());
@@ -78,7 +80,7 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
             const std::string& sy = rdb.getReadById(j);
             double xlen = sx.size(), ylen = sy.size();
             double acsxy, acsyx, kdxy;
-            ExactLCPk lxy(sx, sy, cfg); // construct suffix array
+            LCPk lxy(sx, sy, cfg); // construct suffix array
             lxy.compute();
             compute_kacs(lxy.getkLCP(), acsxy, acsyx);
             compute_kdist(xlen, ylen, acsxy, acsyx, kdxy);
@@ -92,31 +94,13 @@ void compute_kacs(ReadsDB& rdb, AppConfig& cfg){
     write_dmat(dmat, rdb, cfg);
 }
 
-void compute_kacs_naive(ReadsDB& rdb, AppConfig& cfg){
-    unsigned nReads = rdb.getReadsCount();
-    assert(nReads >= 2);
-    assert(nReads == rdb.getFilesCount());
-    std::vector<std::vector<double>> dmat;
-    dmat.resize(nReads);
-    for(unsigned i = 0;i < nReads; i++)
-        dmat[i].resize(nReads);
-
-    for(int i  = nReads - 1; i >= 0; i--){
-        for(int j = i + 1; j < (int)nReads; j++){
-            const std::string& sx = rdb.getReadById(i);
-            const std::string& sy = rdb.getReadById(j);
-            double xlen = sx.size(), ylen = sy.size();
-            double acsxy, acsyx, kdxy;
-            NaiveLCPk lxy(sx, sy, cfg); // construct suffix array
-            lxy.compute();
-            compute_kacs(lxy.getkLCP(), acsxy, acsyx);
-            compute_kdist(xlen, ylen, acsxy, acsyx, kdxy);
-            // cfg.ofs << i << "\t" << j << "\t"
-            //         << sx.size() << "\t" << sy.size() << "\t"
-            //         << acsxy << "\t" << acsyx << "\t"
-            //         << kdxy << std::endl;
-            dmat[i][j] = dmat[j][i] = kdxy;
-        }
-    }
-    write_dmat(dmat, rdb, cfg);
+void compute_kacs(ReadsDB& rdb, AppConfig& cfg)
+{
+    // estimate k-acs
+    if(cfg.method == 1)
+        kacs_factory<NaiveLCPk>(rdb, cfg);
+    else if(cfg.method == 2)
+        kacs_factory<HeuristicLCPk>(rdb, cfg);
+    else
+        kacs_factory<ExactLCPk>(rdb, cfg);
 }
