@@ -9,7 +9,6 @@
 
 ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
                      AppConfig& cfg) : m_aCfg(cfg){
-    m_kv = m_aCfg.kv > 0 ? m_aCfg.kv : 0;
     m_strXY = sx + "#" + sy + "$";
     m_strLengths[0] = sx.size(); m_strLengths[1] = sy.size();
     m_strLenPfx[0] = sx.size(); m_strLenPfx[1] = sx.size() + 1 + sy.size();
@@ -402,7 +401,7 @@ void ExactLCPk::computeK(){
 }
 
 void ExactLCPk::compute(){
-    assert(m_kv >= 0);
+    m_kv = m_aCfg.kv > 0 ? m_aCfg.kv : 0;
     if (m_kv == 0){
         compute0();
     } else {
@@ -412,5 +411,9 @@ void ExactLCPk::compute(){
 
 void ExactLCPk::computeTest(int k){
     m_kv= k;
-    compute();
+    if (m_kv == 0){
+        compute0();
+    } else {
+        computeK();
+    }
 }

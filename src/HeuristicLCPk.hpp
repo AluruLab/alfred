@@ -16,7 +16,10 @@ private:
     void extend(const std::string& sa, const std::string& sb, int tidx);
     void extendRMQ(const std::string& sa, const std::string& sb, int tidx);
     void extendCrawl(const std::string& sa, const std::string& sb, int tidx);
-
+    void extendRMQ();
+    void extendCrawl();
+    void computeBasisTest(int kv);
+    void computeBasis();
 public:
     HeuristicLCPk(const std::string& x, const std::string& y,
                   AppConfig& cfg);

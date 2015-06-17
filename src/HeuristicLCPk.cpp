@@ -14,6 +14,8 @@ void HeuristicLCPk::extendCrawl(const std::string& sa, const std::string& sb,
                                 int tidx){
     if(m_kextend <= 0)
         return;
+    //std::cout << sa << std::endl;
+    //std::cout << sb << std::endl;
     for(unsigned astart = 0; astart < sa.size(); astart++){
         unsigned bstart = (unsigned)m_klcpXY[tidx][0][astart];
         unsigned howfar = (unsigned)m_klcpXY[tidx][1][astart];
@@ -42,8 +44,8 @@ void HeuristicLCPk::extendRMQ(const std::string& sa, const std::string& sb,
                               int tidx){
     if(m_kextend <= 0)
         return;
-    //auto tx = rmq(0, 6, 7);
-    //std::cout << tx << std::endl << std::endl;
+    //std::cout << sa << std::endl;
+    //std::cout << sb << std::endl;
     for(int32_t astart = 0; astart < (int32_t)sa.size(); astart++){
         int32_t bstart = m_klcpXY[tidx][0][astart];
         int32_t howfar = m_klcpXY[tidx][1][astart] - 1; // start back a bit
@@ -76,37 +78,52 @@ void HeuristicLCPk::extendRMQ(const std::string& sa, const std::string& sb,
 
 }
 
-void HeuristicLCPk::compute(){
+void HeuristicLCPk::computeBasis(){
     // compute
     m_eLCPk.compute();
     // sawp
     for(int i = 0; i < 2; i++)
         for(int j = 0; j < 2; j++)
             std::swap(m_klcpXY[i][j], m_eLCPk.getkLCP()[i][j]);
-    // extend
+}
+
+void HeuristicLCPk::computeBasisTest(int kv){
+    // compute
+    m_eLCPk.computeTest(kv);
+    // sawp
+    for(int i = 0; i < 2; i++)
+        for(int j = 0; j < 2; j++)
+            std::swap(m_klcpXY[i][j], m_eLCPk.getkLCP()[i][j]);
+}
+
+void HeuristicLCPk::extendRMQ(){
     extendRMQ(m_sx, m_sy, 0);
     extendRMQ(m_sy, m_sx, 1);
 }
 
-
-void HeuristicLCPk::computeCrawl(){
-    // compute
-    m_eLCPk.compute();
-    // sawp
-    for(int i = 0; i < 2; i++)
-        for(int j = 0; j < 2; j++)
-            std::swap(m_klcpXY[i][j], m_eLCPk.getkLCP()[i][j]);
-    // extend
+void HeuristicLCPk::extendCrawl(){
     extendCrawl(m_sx, m_sy, 0);
     extendCrawl(m_sy, m_sx, 1);
 }
 
+void HeuristicLCPk::compute(){
+    computeBasis();
+    extendRMQ();
+}
+
+void HeuristicLCPk::computeCrawl(){
+    computeBasis();
+    extendCrawl();
+}
+
 void HeuristicLCPk::computeTest(int kv, int ext){
     m_kextend = ext - kv;
-    compute();
+    computeBasisTest(kv);
+    extendRMQ(); // extend
 }
 
 void HeuristicLCPk::computeCrawlTest(int kv, int ext){
     m_kextend = ext - kv;
-    computeCrawl();
+    computeBasisTest(kv);
+    extendCrawl();
 }

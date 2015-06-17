@@ -39,6 +39,16 @@ protected:
 
 };
 
+TEST_F(HueristicDNA15LCPTest, HeuristicNaiveLCPZero5Check){
+    std::vector<int32_t> xlcp = {8, 7, 6, 9, 3, 2, 8, 8, 3, 4, 5, 4, 3, 2, 1};
+    std::vector<int32_t> ylcp = {6, 2, 2, 7, 8, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+    pnlxy->computeTest(0, 5);
+    ASSERT_EQ(pnlxy->getkLCP()[0][0].size(), xlcp.size());
+    ASSERT_EQ(pnlxy->getkLCP()[1][0].size(), ylcp.size());
+    ASSERT_EQ(pnlxy->getkLCP()[0][1], xlcp);
+    ASSERT_EQ(pnlxy->getkLCP()[1][1], ylcp);
+}
+
 TEST_F(HueristicDNA15LCPTest, DNA15LCPZero0Check){
     pnlxy->computeCrawlTest(0, 0);
     pelxy->computeTest(0, 0);
