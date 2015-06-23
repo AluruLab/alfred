@@ -269,11 +269,12 @@ private:
     void selectSuffixes0(const InternalNode& uNode,
                          std::vector<L1Suffix>& leaves);
 public:
+    friend class HeuristicLCPk;
     ExactLCPk(const std::string& x, const std::string& y,
               AppConfig& cfg);
     void print(std::ostream& ofs);
     void compute();
-    auto getkLCP() -> ivec_t (&)[2][2] {
+    auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
     }
     void computeTest(int k);

@@ -25,11 +25,11 @@ public:
                   AppConfig& cfg);
     void computeCrawl();
     void compute();
-    auto getkLCP() -> ivec_t (&)[2][2] {
+    auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
     }
-    void computeTest(int kv, int ext);
     void computeCrawlTest(int kv, int ext);
+    void computeTest(int kv, int ext);
     void print(std::ostream& ){}
 };
 

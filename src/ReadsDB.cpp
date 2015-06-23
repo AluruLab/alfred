@@ -71,8 +71,7 @@ void ReadsDB::readFasta(std::string& fname, preads_t& freads,
             read = "";
             line = line.substr(1);
             header = trim(line);
-        } else if(line[0] == 'A' || line[0] == 'C' ||
-                  line[0] == 'G' || line[0] == 'T') {
+        } else if(is_valid_apha(line[0])) {
             line  = trim(line);
             read += line;
         }

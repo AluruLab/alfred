@@ -84,7 +84,7 @@ void HeuristicLCPk::computeBasis(){
     // sawp
     for(int i = 0; i < 2; i++)
         for(int j = 0; j < 2; j++)
-            std::swap(m_klcpXY[i][j], m_eLCPk.getkLCP()[i][j]);
+            std::swap(m_klcpXY[i][j], m_eLCPk.m_klcpXY[i][j]);
 }
 
 void HeuristicLCPk::computeBasisTest(int kv){
@@ -93,7 +93,7 @@ void HeuristicLCPk::computeBasisTest(int kv){
     // sawp
     for(int i = 0; i < 2; i++)
         for(int j = 0; j < 2; j++)
-            std::swap(m_klcpXY[i][j], m_eLCPk.getkLCP()[i][j]);
+            std::swap(m_klcpXY[i][j], m_eLCPk.m_klcpXY[i][j]);
 }
 
 void HeuristicLCPk::extendRMQ(){

@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <sstream>
+#include "defs.hpp"
 
 // UTILITY FUNCTIONS -------------------------------------------------
 // trim taken from stack overflow
@@ -118,5 +119,23 @@ static inline int char_to_bits(char c) {
             break;
     }
     return cvalue;
+}
+
+static inline bool is_valid_dna(char c){
+    for(auto i = 0u; i < DNA_ALPHABET_SIZE; i++)
+        if(c == DNA_ALPHABET[i])
+            return true;
+    return false;
+}
+
+static inline bool is_valid_prot(char c){
+    for(auto i = 0u; i < PROT_ALPHABET_SIZE; i++)
+        if(c == PROT_ALPHABET[i])
+            return true;
+    return false;
+}
+
+static inline bool is_valid_apha(char c){
+    return is_valid_dna(c) || is_valid_prot(c);
 }
 #endif /* UTIL_H */
