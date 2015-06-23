@@ -66,7 +66,7 @@ int32_t ExactLCPk::rightBound0(int32_t curLeaf){
     return rpos;
 }
 
-void ExactLCPk::chopSuffixes0(const InternalNode& uNode,
+void ExactLCPk::chopPrefixes0(const InternalNode& uNode,
                               std::vector<L1Suffix>& leaves){
     if(uNode.m_leftBound == -1 || uNode.m_rightBound == -1)
         return;
@@ -151,7 +151,7 @@ void ExactLCPk::selectInternalNodes0(std::vector<InternalNode>& uNodes){
 }
 
 void ExactLCPk::updateExactLCPk(InternalNode& uNode,
-                          std::vector<L1Suffix>& leaves){
+                                std::vector<L1Suffix>& leaves){
 #ifdef DEBUG
     m_aCfg.lfs << std::endl;
     for(auto cm: leaves){
@@ -161,7 +161,6 @@ void ExactLCPk::updateExactLCPk(InternalNode& uNode,
 #endif
 
     // left -> right pass
-    //updateLtoR(uNode, leaves);
     updatePass<UpperBoundCheck, IncrPointer>(0, 1, (int32_t)leaves.size(),
                                              uNode, leaves
 #ifdef DEBUG
@@ -190,7 +189,7 @@ void ExactLCPk::updateExactLCPk(InternalNode& uNode,
 //    - we grow this tree 'x' until we reach its left end
 //
 int32_t ExactLCPk::leftBoundK(const std::vector<L1Suffix>& trieLeaves,
-                           int32_t curLeaf){
+                              int32_t curLeaf){
     if(curLeaf + 1 >= (int32_t)trieLeaves.size()) // reached the end
         curLeaf = (int32_t) trieLeaves.size() - 2;
     if(curLeaf <= 0)
@@ -220,7 +219,7 @@ int32_t ExactLCPk::leftBoundK(const std::vector<L1Suffix>& trieLeaves,
 //    - we grow this tree 'x' until we reach its right end
 //
 int32_t ExactLCPk::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
-                            int32_t curLeaf){
+                               int32_t curLeaf){
     if(curLeaf < 0)
         curLeaf = 1;
     if(curLeaf + 1 >= (int32_t)trieLeaves.size()) // reached the end
@@ -247,13 +246,12 @@ int32_t ExactLCPk::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
 }
 
 void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
-                                  const std::vector<L1Suffix>& leaves,
-                                  std::vector<InternalNode>& trieNodes){
-    // Assume candidates are sorted
-    // Each candidate match is a leaf in the trie
-    // for each candidate match (TODO:: verify)
+                                     const std::vector<L1Suffix>& leaves,
+                                     std::vector<InternalNode>& trieNodes){
+    // Assume input suffixes are sorted (each suffix is a leaf in the trie)
     trieNodes.resize(leaves.size());
     unsigned j = 0;
+    // for each leaf
     for(int32_t i = 0; i < (int32_t)leaves.size(); i++){
         if(leaves[i].m_errSAPos < 2) // skip the one which reach the end
             continue;
@@ -263,7 +261,7 @@ void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
         uNode.m_rightBound = rightBoundK(leaves, i); // get right end
         if(uNode.m_leftBound == uNode.m_rightBound) // skip internal node with 1 leaf
             continue;
-        // prevNode.depth + 1 + get range min lcp of left and right ends (?)
+        // prevNode.depth + 1 + get range min lcp of left and right ends
         uNode.m_stringDepth =
             rangeMinLCP(leaves[uNode.m_leftBound].m_errSAPos,
                         leaves[uNode.m_rightBound].m_errSAPos);
@@ -276,9 +274,9 @@ void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
     eliminateDupes(trieNodes);
 }
 
-void ExactLCPk::chopSuffixesK(const InternalNode& uNode,
-                           const std::vector<L1Suffix>& inSuffixes,
-                           std::vector<L1Suffix>& outSuffixes){
+void ExactLCPk::chopPrefixesK(const InternalNode& uNode,
+                              const std::vector<L1Suffix>& inSuffixes,
+                              std::vector<L1Suffix>& outSuffixes){
     if(uNode.m_leftBound == -1 || uNode.m_rightBound == -1)
         return;
 
@@ -291,7 +289,7 @@ void ExactLCPk::chopSuffixesK(const InternalNode& uNode,
     m_aCfg.lfs << std::endl;
 #endif
     //   collect tuples for each position (going left and right)
-    //      (c, c', 0/1) c' = gisa[gsa[c] + d + 1]
+    //      (c, c', 0/1), where c' = gisa[gsa[c] + d + 1]
     unsigned j = 0;
     for(int32_t idx = uNode.m_leftBound;
             idx <= uNode.m_rightBound; idx++){
@@ -343,7 +341,7 @@ void ExactLCPk::compute0(){
         uNode.dwriteln(m_aCfg.lfs);
 #endif
         //   collect tuples for each position (going left and right)
-        //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
+        //      (i, i', 0/1) , where i' = gisa[gsa[i] + d + 1]
         std::vector<L1Suffix> leaves;
         selectSuffixes0(uNode, leaves);
         uNode.m_stringDepth = -1; // just to let update use the LCP
@@ -353,7 +351,7 @@ void ExactLCPk::compute0(){
 }
 
 void ExactLCPk::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
-                      int searchLevel){
+                         int searchLevel){
     if(searchLevel == 0){
         // update LCP array
         updateExactLCPk(uNode, uLeaves);
@@ -363,7 +361,7 @@ void ExactLCPk::computeK(InternalNode& uNode, std::vector<L1Suffix>& uLeaves,
     selectInternalNodesK(uNode, uLeaves, trieNodes);
     for(auto nit = trieNodes.begin(); nit != trieNodes.end(); nit++){
         std::vector<L1Suffix> trieLeaves;
-        chopSuffixesK(*nit, uLeaves, trieLeaves);
+        chopPrefixesK(*nit, uLeaves, trieLeaves);
         computeK(*nit, trieLeaves, searchLevel - 1);
     }
 }
@@ -394,7 +392,7 @@ void ExactLCPk::computeK(){
         //   collect tuples for each position (going left and right)
         //      (i, i', 0/1) i' = gisa[gsa[i] + d + 1]
         std::vector<L1Suffix> choppedSfxs;
-        chopSuffixes0(*nit, choppedSfxs);
+        chopPrefixes0(*nit, choppedSfxs);
         // update lcp using sorted tuples using a double pass
         computeK(*nit, choppedSfxs, m_kv - 1);
     }

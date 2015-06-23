@@ -134,13 +134,13 @@ private:
     int32_t leftBound0(int32_t curLeaf);
     int32_t rightBound0(int32_t curLeaf);
     void selectInternalNodes0(std::vector<InternalNode>& uNodes);
-    void chopSuffixes0(const InternalNode& uNode,
+    void chopPrefixes0(const InternalNode& uNode,
                        std::vector<L1Suffix>& leaves);
 
     void updateExactLCPk(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
     void eliminateDupes(std::vector<InternalNode>& uNodes);
-public:
+
     inline int32_t rangeMinLCP(const int32_t& t1, const int32_t& t2){
         if(t1 < 0 || t2 < 0)
             return 0;
@@ -201,7 +201,6 @@ private:
                     ) {
         BoundChecker bound_check;
         NextPointer next_ptr;
-        int32_t rmin = 0;
         // move the pointer until we reach the first src, target
         while(bound_check(tgt_ptr, tgt_bound)){
             if(leaves[tgt_ptr].m_srcStr != leaves[src_ptr].m_srcStr)
@@ -214,9 +213,10 @@ private:
            leaves[tgt_ptr].m_srcStr == leaves[src_ptr].m_srcStr)
             return;
         while(true){
+            int32_t rmin = 0;
             int32_t tgt = leaves[tgt_ptr].m_srcStr,
                 tpos = strPos(uNode, leaves[tgt_ptr]);
-            // - update running min.
+            // - get LCP between src_ptr and tgt_ptr from RMQ
             rmin = updatePassLCP(leaves[src_ptr], leaves[tgt_ptr]);
             int32_t score = uNode.m_stringDepth + uNode.m_delta + rmin;
 #ifdef DEBUG
@@ -236,19 +236,19 @@ private:
 #endif
             assert(tpos >= 0);
             assert(tpos < (int32_t)m_klcpXY[tgt][1].size());
-            // - update target's lcp if it is better than current lcp.
+            // - update target's LCP, if score is higher
             if(score > m_klcpXY[tgt][1][tpos]){
-                m_klcpXY[tgt][0][tpos] = leaves[src_ptr].m_startPos
-                   - uNode.m_delta - m_shiftPos[1 - tgt];
+                m_klcpXY[tgt][0][tpos] = strPos(uNode, leaves[src_ptr]);
                 m_klcpXY[tgt][1][tpos] = score;
             }
+            // - update tgt_ptr; quit if out of bounds
             int32_t prev_tgt = tgt_ptr;
             next_ptr(tgt_ptr);
             if(!bound_check(tgt_ptr, tgt_bound))
                 break;
-            // - if tgt_ptr switches string,
+            // - update src_ptr, if tgt_ptr switches string source
             if(leaves[tgt_ptr].m_srcStr == leaves[src_ptr].m_srcStr)
-                src_ptr = prev_tgt; // update src_ptr
+                src_ptr = prev_tgt;
         }
     }
 
@@ -262,7 +262,7 @@ private:
     void selectInternalNodesK(const InternalNode& prevNode,
                               const std::vector<L1Suffix>& leaves,
                               std::vector<InternalNode>& trieNodes);
-    void chopSuffixesK(const InternalNode& uNode,
+    void chopPrefixesK(const InternalNode& uNode,
                        const std::vector<L1Suffix>& uLeaves,
                        std::vector<L1Suffix>& trieLeaves);
     void compute0();
