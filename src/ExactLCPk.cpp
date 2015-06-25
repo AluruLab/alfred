@@ -20,6 +20,7 @@ ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
     //construct_lcp_PHI(pxy.c_str(), gsa, glcp);
     m_rangeMinQuery =
         std::move(rmq_support_sparse_table<ivec_t, true, ivec_t>(&m_glcp));
+    m_nPass = m_passSizes = 0.0;
 }
 
 void ExactLCPk::print(std::ostream& ofs){
@@ -159,6 +160,10 @@ void ExactLCPk::updateExactLCPk(InternalNode& uNode,
     }
     m_aCfg.lfs << std::endl;
 #endif
+    if(leaves.size() == 0)
+        return;
+    m_nPass += 1;
+    m_passSizes += leaves.size();
 
     // left -> right pass
     updatePass<UpperBoundCheck, IncrPointer>(0, 1, (int32_t)leaves.size(),
@@ -405,6 +410,8 @@ void ExactLCPk::compute(){
     } else {
         computeK();
     }
+    m_aCfg.lfs << "  [" << m_nPass << ", "
+               << m_passSizes << "]," << std::endl;
 }
 
 void ExactLCPk::computeTest(int k){

@@ -128,6 +128,8 @@ private:
     ivec_t m_gsa, m_gisa, m_glcp;
     ivec_t m_klcpXY[2][2];
     int m_kv;
+    double m_nPass;
+    double m_passSizes;
 
     rmq_support_sparse_table<ivec_t, true, ivec_t> m_rangeMinQuery;
 

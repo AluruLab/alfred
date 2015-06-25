@@ -74,6 +74,8 @@ void kacs_factory(ReadsDB& rdb, AppConfig& cfg){
     for(unsigned i = 0;i < nReads; i++)
         dmat[i].resize(nReads);
 
+    cfg.lfs << "\"rdata\": [" << std::endl;
+
     for(int i  = nReads - 1; i >= 0; i--){
         for(int j = i + 1; j < (int)nReads; j++){
             const std::string& sx = rdb.getReadById(i);
@@ -91,6 +93,8 @@ void kacs_factory(ReadsDB& rdb, AppConfig& cfg){
             dmat[i][j] = dmat[j][i] = kdxy;
         }
     }
+
+    cfg.lfs << "  []]," << std::endl;
     write_dmat(dmat, rdb, cfg);
 }
 
