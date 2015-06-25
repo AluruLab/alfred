@@ -51,7 +51,8 @@ void write_dmat(std::vector<std::vector<double>>& dmat,
     unsigned nReads = dmat.size();
     cfg.ofs << nReads << std::endl;
     for(unsigned i=0; i < nReads; i++){
-        std::string orgName = removeExtension(basename(rdb.getFileName(i)));
+        // removeExtension(basename(rdb.getReadNameById(i)));
+        std::string orgName = rdb.getReadNameById(i);
         if(orgName.size() > 10)
             orgName = orgName.substr(0, 10);
         cfg.ofs << orgName << "    ";
