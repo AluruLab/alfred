@@ -10,3 +10,4 @@
 software/*
 build/*
 data/*.zip
+data/roseobacter/*.fa

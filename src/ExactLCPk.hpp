@@ -134,8 +134,8 @@ private:
     int32_t leftBound0(int32_t curLeaf);
     int32_t rightBound0(int32_t curLeaf);
     void selectInternalNodes0(std::vector<InternalNode>& uNodes);
-    void chopPrefixes0(const InternalNode& uNode,
-                       std::vector<L1Suffix>& leaves);
+    void chopPrefix0(const InternalNode& uNode,
+                     std::vector<L1Suffix>& leaves);
 
     void updateExactLCPk(InternalNode& uNode, std::vector<L1Suffix>& leaves);
 
@@ -169,7 +169,6 @@ private:
         return m_glcp[rpos];
     }
 
-private:
     inline int32_t updatePassLCP(const int32_t& t1, const int32_t& t2){
         if(t1 < 0 || t2 < 0)
             return 0;
@@ -262,9 +261,9 @@ private:
     void selectInternalNodesK(const InternalNode& prevNode,
                               const std::vector<L1Suffix>& leaves,
                               std::vector<InternalNode>& trieNodes);
-    void chopPrefixesK(const InternalNode& uNode,
-                       const std::vector<L1Suffix>& uLeaves,
-                       std::vector<L1Suffix>& trieLeaves);
+    void chopPrefixK(const InternalNode& uNode,
+                     const std::vector<L1Suffix>& uLeaves,
+                     std::vector<L1Suffix>& trieLeaves);
     void compute0();
     void selectSuffixes0(const InternalNode& uNode,
                          std::vector<L1Suffix>& leaves);
