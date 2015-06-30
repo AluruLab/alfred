@@ -1,0 +1,215 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{amsmath,clrscode3e,algorithm,verbatim,tikz}
+\usepackage{times}
+
+\author{srirampc}
+\date{}
+\title{$LCP_k$ Implementation and Experiments}
+\begin{document}
+\maketitle
+
+\section{Implementation}
+\subsection{Outline}
+
+Our algorithm computes $LCP_k$ by a depth-first search of sorted
+suffixes allowing upto $k$-mismatches. Output of the algorithm is a
+3-dimensional array $KLCP$. $KLCP[1, 1, i]$ records $\max_{j} LCP_k(X_i,
+Y_j)$, while $KLCP[1, 2, i]$ records $\arg \max_{j} LCP_k(X_i,
+Y_j)$. Similarly, $KLCP[2, \cdot, \cdot]$ records the corresponding
+values for $Y$ with respect to $X$.
+%$KLCP$ is updated whenever the search frontier reaches a
+%depth level of $k$.
+$ACS_k(X,Y)$ can be computed using the $KLCP$ arrays using the forumla
+given in section (TODO: ref above).
+
+Our algorithm uses Suffix array, ISA, LCP arrays and RMQ tables as the
+underlying data-structures. We construct suffix array $SA_R$ for the
+string $R$ = $X$\#$Y$\$ using the libdivsufsort library (TODO: cite). We
+also construct ISA and LCP arrays $(LCP_R)$, and the RMQ tables
+$(RMQ_R)$ based on the implementations from the SDSL library (TODO:
+cite). We use the implementations of Kasai Algorithm (TODO: cite) and
+Bender-Farach's algorithm (TODO: cite) for construction of LCP arrays
+and RMQ tables respectively. Though SDSL library uses bit compression
+techniques to reduce the size of the tables and arrays in exchange for
+relatively longer time to answer queries, we don't compress these data
+structures. We use 32-bit integers for indices and prefix lengths since
+they are sufficient for our purposes.
+
+% When the search accomodates an error, the search goes a level
+% deeper. When we reach the seach-depth $k$, we have collected a set of
+% suffixes from strings $X$ and $Y$ with common prefixes allowing
+% $k$-mismatches. Based on this set of suffixes, we update $KLCP$. We
+% continue the depth-first search until we run out of suffixes.
+
+% At search depth $1$, we start with all suffixes of $R$, and as we
+% go down the levels we consider a subset of suffixes of $R$, constructed
+% from the suffixes at the previous level. Search continues until we reach
+% a depth of level $k$, and at which point we update $KLCP$ using the
+% suffixes collected at the current search frontier.
+
+The following psuedo-code shows the outline of our implementation of the
+depth-first search algorithm.
+\begin{codebox}
+ \Procname{$\proc{Compute-LCPK}()$}
+ \li $U \gets \proc{ST-Internal-Nodes}()$
+ \li \For $i \gets 1 \To |U|$
+ \li \Do $S_1 \gets \proc{ST-Chop-Prefix}(U[i])$
+ \li   $\proc{Recursive-Compute-LCPK}(U[i], S_1, 1)$
+      \End
+ \end{codebox}
+
+The procedure $\proc{Compute-LCPK}$ first calls the function
+$\proc{ST-Internal-Nodes}$ to select all the internal nodes of the
+suffix tree of $R$. Then, for
+each internal node $u$, a call to $\proc{ST-Chop-Prefix}(u)$ chops the
+prefixes of length $\proc{String-Depth}(u) + 1$ of all the suffixes
+corresponding to $u$. After chopping the prefix, a recursive procedure
+$\proc{Recursive-Compute-LCPK}$ is called to explore the search
+space further in a depth-first manner.
+
+ \begin{codebox}
+ \Procname{$\proc{Recursive-Compute-LCPK}(u, S_{j}, j)$}
+ \li \If $j = k$
+ \li \Do  $\proc{Update-KLCP}(u, S_{j})$
+ \li     \Return
+     \End
+ \li $U_j \gets \proc{Trie-Internal-Nodes}(u, S_{j})$
+ \li \For $i \gets 1 \To |U_{j}|$
+ \li \Do $S_{j + 1} \gets \proc{Trie-Chop-Prefix}(U_{j}[i], S_{j})$
+ \li   $\proc{Recursive-Compute-LCPK}(U_{j}[i], S_{j + 1}, j + 1)$
+      \End
+\end{codebox}
+
+The recursive procedure $\proc{Recursive-Compute-LCPK}$ takes as input
+an internal node ($u$) of a suffix trie, the corresponding set of sorted
+suffixes ($S_j$) and the search depth ($j$). When the search depth
+reaches $k$, recursion ends and $KLCP$ arrays are updated. Otherwise,
+the procedure selects the internal nodes of the suffix trie induced by
+$S_j$, chops the common prefix of the suffixes corresponding to each
+internal node in the trie, and recursively calls itself while
+incrementing the search depth.
+
+% We always consider a set of suffixes under the context of a specific
+% internal node $u$. $u$ is either an internal node in a suffix tree (at
+% search depth of $0$) or an internal node of a suffix trie (at search
+% depths $1, \ldots, k-1$). We construct suffixes at search level $j$ by
+% chopping prefix of the suffixes under at search level $j-1$. Chopping
+% one character after matching the common prefix of the suffixes allows
+% collecting the suffixes with one mismatch in their common prefixes.
+\subsection{Representation}
+
+The procedures shown above represents sets of internal nodes and
+suffixes as arrays of tuples. We represent an interal node $u$ (both for
+the suffix tree and the suffix tries) as a tuple $(bp, ep, d, \delta
+)$. Here, $bp$ and $ep$ are the start and end indices pointing to a
+sorted array of suffixes. At search level $0$, this array is $SA_R$, and
+$bp$ and $ep$ are indices to $SA_R$. At search levels $j =
+1,\ldots,k-1$, they are a subset of suffixes selected from $R$. $d$ is
+the string depth of the internal node in this trie, and $\delta$ the sum
+of the chopped lengths at the previous levels $1, \ldots, j-1$. At level
+$0$, $\delta = 0$.
+
+Suffixes are considered under the context of an internal node $u$. At
+search level $0$, suffixes are just indices of $R$. At search levels $j
+= 1,\ldots,k-1$, we represent the suffixes of the trie with the tuple
+$(c, c', str)$, where $c$ is the position in the string $R$, $c'$ is the
+position in $SA_R$ of suffix $c$ after chopping the first
+$\proc{String-Depth}(u) + 1$ characters. $str$ field indicates whether
+the suffix is from either $X$ or $Y$. In this paper, we use function
+notation to access a specific element of the tuple. For example, to
+access field $c$ of the suffix $x$ represented by tuple $(i, j, 2)$,
+we write $c(r) = i$.
+
+Since $\# <$ \$ $< \{A,\ldots, Z\}$, $SA_R[1]$ and $SA_R[2]$ are $\#Y$
+and \$ -- the end of first and second strings -- respectively.
+As we chop off suffixes and reach towards the end of the strings, we
+might end up in either at the first or second entry of the suffix
+array. When we proceed to the next search level, we ignore these suffixes.
+
+\subsection{Procedures}
+
+As noted above, $\proc{ST-Internal-Nodes}$ selects the internal nodes of
+the suffix tree of $R$. In this procedure , there is no explicit
+construction of the suffix tree. For our purposes, we require only the
+left and right bounds of the sub-tree corresponding to all internal
+nodes, which can be computed using only $SA_R$ and $LCP_R$ as
+follows. $LCP_R[i+1]$ records the string depth of the least common
+ancestor $u$ of two consecutive pair of suffixes $(i, i+1)$ in
+$SA_R$. The left and right bounds of $u$ can be computed by enclosing
+the pair $(i, i+1)$ with all the suffixes having the same least common
+ancestor $u$. By collecting suffixes of the least common ancestor of
+every pair $(i, i+1), i = 3, \ldots, |SA_R|$, the procedure
+$\proc{ST-Internal-Nodes}$ computes the left and right bounds for all
+the internal nodes in the suffix tree of $R$.
+
+$\proc{ST-Chop-Prefix}$ chops the common prefixes of the suffixes and
+construct the set of chopped suffix tuples. It also sorts the chopped
+suffix tuples with $c'$ as the key.
+
+$\proc{Trie-Internal-Nodes}$ selects left and right bounds of the
+suffixes corresponding to the internal nodes of the trie. Similar to the
+suffix tree right and left bounds can be computed by enclosing a pair of
+suffixes, but instead of $LCP_R$ arrays, we use the $RMQ_R$ tables to
+retrieve the length of least common prefixes of two suffixes in a trie.
+Similar to the suffix tree counterpart, $\proc{Trie-Chop-Prefix}$ chops
+common prefix of a set of suffixes allowing one mismatch and sorts the
+suffixes by the $c'$.
+
+The $\proc{Update-KLCP}$ procedure, as shown below, makes two passes one
+from left to right and another from right to left.
+
+\begin{codebox}
+\Procname{$\proc{Update-KLCP}(u, S_j)$}
+\li $\proc{Update-KLCP-Left-To-Right}(u, S_j)$
+\li $\proc{Update-KLCP-Right-To-Left}(u, S_j)$
+\End
+\end{codebox}
+Except for the direction of scan, both left-to-right and right-to-left
+passes are similiar in that they scan through the array of suffixes to
+identify the pairs of suffixes $(p, q), p < q$ such that one each from
+$X$ and $Y$ to update the corresponding $KLCP$ entries.
+$\proc{Update-KLCP-Left-To-Right}(u, S_j)$ is as shown below.
+\begin{codebox}
+\Procname{$\proc{Update-KLCP-Left-To-Right}(u, S_j)$}
+\li $p \gets 1$; $q \gets 2$; $L_H[1] = 0$; $L_H[2] = 1 + |X|$
+    \label{up:init0}
+\li \While $q < |S_j|$ \kw{and} $src(S_j[p]) = src(S_j[q])$
+\li \Do $p \gets q$; $q \gets q + 1$ \label{up:init1}
+\End
+\li \While $q < |S_j|$
+\li \Do $r \gets c(S_j[p]) - L_H[src(S_j[p])] - \delta(u)$  %\Comment Starting Position
+\label{up:score0}
+\li     $t \gets c(S_j[q]) - L_H[src(S_j[q])] - \delta(u)$
+\li  $l_{p,q} \gets \delta(u) + d(u) + RMQ_R(c'(S_j[p]), c'(S_j[q])) + 1$
+\li  \If $l_{p,q} > KLCP[src(S_j[q])][1][t]$
+\li    \Do $KLCP[src(S_j[q])][1][t]  \gets l_{p,q}$
+\li        $KLCP[src(S_j[q])][2][t] \gets r$
+\End \label{up:score1}
+\li \If $src(S_j[p]) == src(S_j[q + 1])$ \label{up:move0}
+\li  \Then $p = q$ \End
+\li   $q \gets q + 1$ \label{up:move1}
+\End
+\end{codebox}
+Lines \ref{up:init0} -- \ref{up:init1} initializes pointers $p$ and $q$
+to the first consecutive suffixes in $S_j$ such that $S_j[p]$ and
+$S_j[q]$ originate from two different strings. Lines \ref{up:score0} --
+\ref{up:score1} evaluate the length of longest common prefix with
+$k$-mismatches between suffixes $S_j[p]$ and $S_j[q]$. If the evaluted
+prefix length is longer than current length recored by $KLCP$ for
+$src(S_j[q])$, it updates the corresponding $KLCP$
+entries. Lines \label{up:move0} -- \label{up:move1} updates the pointers
+$p$ and $q$ to the next pair of suffixes that from originate from two
+different strings.
+
+\end{document}

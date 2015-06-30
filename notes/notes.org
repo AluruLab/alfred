@@ -67,7 +67,7 @@
 
     where
      - $c$ is the position in the string $R$,
-     - $c'$ is the position in SA of suffix $start$ after chopping
+     - $c'$ is the position in SA of suffix $c$ after chopping
        $1 + \proc{String-Depth}(u)$
      - $src$ is the source string either 0 or 1, 0 corresponding to $X$
        and 1 corresponding to $Y$
@@ -108,7 +108,7 @@
   \Procname{$\proc{Compute-LCPK}(k)$}
   \li $U \gets \proc{SA-Internal-Nodes}()$
   \li \For $i \gets 0 \To |U| - 1$
-  \li \Do $S_0 \gets \proc{SA-Chop-Suffix}(U[i])$
+  \li \Do $S_0 \gets \proc{SA-Chop-Prefix}(U[i])$
   \li   $\proc{Recursive-Compute-LCPK}(U[i], S_0, k - 1)$
        \End
   \end{codebox}
@@ -121,7 +121,7 @@
       \End
   \li $U_j \gets \proc{Trie-Internal-Nodes}(u, S_{j - 1})$
   \li \For $i \gets 0 \To |U_{j}| - 1$
-  \li \Do $S_j \gets \proc{Trie-Chop-Suffix}(U_{j}[i], S_{j - 1})$
+  \li \Do $S_j \gets \proc{Trie-Chop-Prefix}(U_{j}[i], S_{j - 1})$
   \li   $\proc{Recursive-Compute-LCPK}(U_{j}[i], S_j, k - 1)$
        \End
   \end{codebox}
@@ -201,7 +201,7 @@
 
 ** Chop Suffixes w.r.t Internal Node $u$ - Suffix Array
   \begin{codebox}
-  \Procname{$\proc{SA-Chop-Suffix}(u)$}
+  \Procname{$\proc{SA-Chop-Prefix}(u)$}
   \li Initialize $S_0$ array of size $ep(u) - bp(u) + 1$
   \li \For $i \gets bp(u) \To ep(u)$
   \li \Do $c(S_0[i]) \gets SA[i]$
@@ -220,7 +220,7 @@
 
 ** Chop Suffixes w.r.t Internal Node $u$ - Trie
   \begin{codebox}
-  \Procname{$\proc{Trie-Chop-Suffix}(u, S_{j - 1})$}
+  \Procname{$\proc{Trie-Chop-Prefix}(u, S_{j - 1})$}
   \li Initialize $S_j$ array of size $ep(u) - bp(u) + 1$
   \li \For $i \gets bp(u) \To ep(u)$
   \li \Do $src(S_j[i]) \gets src(S_{j-1}[i])$
