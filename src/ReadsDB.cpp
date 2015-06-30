@@ -244,6 +244,7 @@ void ReadsDB::init(char padChar){
 
     for(unsigned i  = 0; i <  m_readFiles.size(); i++){
         if(ends_with(m_readFiles[i], ".fa") ||
+           ends_with(m_readFiles[i], ".tfa") ||
            ends_with(m_readFiles[i], ".fas")) {
             readFasta(m_readFiles[i], m_readsStore[i],
                       m_readLengths[i], m_readNames[i]);

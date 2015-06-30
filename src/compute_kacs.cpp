@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iomanip>
 #include "util.hpp"
 #include "NaiveLCPk.hpp"
 #include "ExactLCPk.hpp"
@@ -55,7 +56,7 @@ void write_dmat(std::vector<std::vector<double>>& dmat,
         std::string orgName = rdb.getReadNameById(i);
         if(orgName.size() > 10)
             orgName = orgName.substr(0, 10);
-        cfg.ofs << orgName << "    ";
+        cfg.ofs << std::setw(14) << std::left << orgName;
         for(unsigned j = 0; j < nReads; j++){
             double kdxy = dmat[i][j];
             cfg.ofs << kdxy << ((j == nReads - 1) ? "" : " ");
