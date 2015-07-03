@@ -17,8 +17,8 @@ rf.dist <- function(tfx, tfy){
 
 rfiles <- c(in.dir)
 print(rfiles)
-dist.df <- ldply(c(0,1,2,3,4,5, 6), function(kval){
-    ksuf <- paste(".acs.k", kval, ".tree", sep = "")
+dist.df <- ldply(c(16,17,18), function(kval){
+    ksuf <- paste(".kmacs.k", kval, ".tree", sep = "")
     kpat <- paste("*", ksuf, sep = "")
     kfdx <- ldply(rfiles, function(din){
         k.files <- list.files(din, pattern = kpat, full.names = T)
@@ -33,11 +33,11 @@ dist.df <- ldply(c(0,1,2,3,4,5, 6), function(kval){
           errs = kval, dist = rf.dist(tfx, tfy))
     })
 })
-write.table(dist.df, "kacs.results.out")
+write.table(dist.df, "kmacs.results.out")
 avg.df <- ddply(dist.df, .(errs), function(kdx){
     avg.val = mean(as.numeric(kdx$dist))
     c(avg = avg.val)
 })
-write.table(avg.df, "kacs.summary.out")
+write.table(avg.df, "kmacs.summary.out")
 # warnings()
 # rf.dist(args[1], args[2])

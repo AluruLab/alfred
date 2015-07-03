@@ -20,9 +20,9 @@ import tempfile
 in_dir = os.path.abspath(sys.argv[1])
 out_dir = os.path.abspath(sys.argv[2])
 nbr_exe = sys.argv[3]
-mat_pattern = os.path.join(in_dir, "rose.aa.00*.acs.k[0-6].out")
-# mat_pattern = os.path.join(in_dir, "RV*", "BB[0-9]*k1[1-3].out")
-# mat_pattern = os.path.join(in_dir, "RV*", "BB[0-9]*spaced.out")
+# mat_pattern = os.path.join(in_dir, "rose.aa.00*.acs.k[0-6].out")
+# mat_pattern = os.path.join(in_dir, "rose.aa.00*.kmacs.k1[6-8].out")
+mat_pattern = os.path.join(in_dir, "rose.aa.00*.spaced.out")
 mat_lst = glob.glob(mat_pattern)
 tfname = tempfile.mktemp()
 tfphot = tempfile.mktemp()

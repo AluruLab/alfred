@@ -25,7 +25,7 @@ print tfname
 print tfphyl
 print tfphot
 print len(tfa_lst)
-for k in [0, 1, 2, 3, 4, 5]:
+for k in [0, 1, 2, 3, 4, 5, 6]:
     for i, fa_name in enumerate(tfa_lst):
         fa_dir = os.path.dirname(fa_name)
         out_file = os.path.join(out_dir, os.path.basename(fa_name))
