@@ -10,7 +10,7 @@ import tempfile
 # python balibase_kmacs.py in_dir out_dir kmacs_path
 # python balibase_kmacs.py
 #         /Users/srirampc/work/phd/research/arakawa/data/balibase/bb3_release
-#         /Users/srirampc/work/phd/research/arakawa/data/balibase/tree
+#         /Users/srirampc/work/phd/research/arakawa/runs/balibase/tree
 #         /Users/srirampc/work/phd/research/arakawa/software/kmacs/kmacs
 
 
@@ -37,10 +37,11 @@ for k in [11, 12, 13]:
         if os.path.isfile(out_file):
             continue
         print i, k, fa_name, out_file
-        with open(tfname, "w") as tfo:
+        log_file = out_file + ".log"
+        with open(log_file, "w") as tfo:
             rc = subprocess.call([kmacs_exe, fa_name, str(k), out_file],
                                  stdout=tfo)
             if rc != 0:
                 print "ERROR!"
                 sys.exit(1)
-os.remove(tfname)
+# os.remove(tfname)

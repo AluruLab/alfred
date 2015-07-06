@@ -1,0 +1,137 @@
+* Roseobacter aliases
+|------------+----------------------------------+------------------------------------------+---------------------------------------|
+| Short Name | Full Name given in input         | Name used by Yangchiau  (without spaces) | Name used by Yangchiau  (with spaces) |
+|------------+----------------------------------+------------------------------------------+---------------------------------------|
+| Dino.DFL12 | DinoroseobactershibaeDFL12       | DinoroseobactershibaeDFL12               | Dinoroseobacter shibae DFL12          |
+| Jann.CCS1  | Jannaschiasp.CCS1                | Jannaschiasp.CCS1                        | Jannaschia sp. CCS1                   |
+| Lokt.SKA53 | LoktanellavestfoldensisSKA53     | LoktanellavestfoldensisSKA53             | Loktanella vestfoldensis SKA53        |
+| Oceb.HEL45 | OceanibulbusindolifexHEL-45      | OceanibulbusindolifexHEL-45              | Oceanibulbus indolifex HEL-45         |
+| Ocea.2597  | OceanicolabatsensisHTCC2597      | OceanicolabatsensisHTCC2597              | Oceanicola batsensis HTCC2597         |
+| Ocea.2516  | OceanicolagranulosusHTCC2516     | OceanicolagranulosusHTCC2516             | Oceanicola granulosus HTCC2516        |
+| Octb.307   | Octadecabacterantarcticus307     | Octadecabacterantarcticus307             | Octadecabacter antarcticus 307        |
+| Octb.238   | Octadecabacterarcticus238        | Octadecabacterarcticus238                | Octadecabacter arcticus 238           |
+| Phae.2.10  | Phaeobactergallaeciensis2.10     | Phaeobactergallaeciensis2.10             | Phaeobacter gallaeciensis 2.10        |
+| Phae.BS107 | PhaeobactergallaeciensisBS107    | PhaeobactergallaeciensisBS107            | Phaeobacter gallaeciensis BS107       |
+| Rhod.2083  | RhodobacteralesbacteriumHTCC2083 | RhodobacteralesbacteriumHTCC2083         | Rhodobacterales bacterium HTCC2083    |
+| Rhod.2150  | RhodobacteralesbacteriumHTCC2150 | RhodobacteralesbacteriumHTCC2150         | Rhodobacterales bacterium HTCC2150    |
+| Rhod.2255  | RhodobacteralesbacteriumHTCC2255 | RhodobacteralesbacteriumHTCC2255         | Rhodobacterales bacterium HTCC2255    |
+| Rhod.2654  | RhodobacteralesbacteriumHTCC2654 | MaritimibacteralkaliphilusHTCC2654       | Maritimibacter alkaliphilus HTCC2654  |
+| Rhod.Y4I   | RhodobacteralesbacteriumY4I      | RhodobacteralesbacteriumY4I              | Rhodobacterales bacterium Y4I         |
+| Rosd.OC114 | RoseobacterdenitrificansOCh114   | RoseobacterdenitrificansOCh114           | Roseobacter denitrificans OCh 114     |
+| Rosl.OC149 | RoseobacterlitoralisOch149       | RoseobacterlitoralisOch149               | Roseobacter litoralis Och 149         |
+| Rosp.AzK3b | Roseobactersp.AzwK-3b            | Roseobactersp.AzwK-3b                    | Roseobacter sp. AzwK-3b               |
+| Rosp.CCS2  | Roseobactersp.CCS2               | Roseobactersp.CCS2                       | Roseobacter sp. CCS2                  |
+| Rosp.GA101 | Roseobactersp.GAI101             | Roseobactersp.GAI101                     | Roseobacter sp. GAI101                |
+| Rosp.ME193 | Roseobactersp.MED193             | Roseobactersp.MED193                     | Roseobacter sp. MED193                |
+| Rosp.20926 | Roseobactersp.SK209-2-6          | Roseobactersp.SK209-2-6                  | Roseobacter sp. SK209-2-6             |
+| Roso.T1035 | RoseovariusTM1035                | Roseovariussp.TM1035                     | Roseovarius sp. TM1035                |
+| Rosn.T1035 | RoseovariusnubinhibensISM        | RoseovariusnubinhibinsISM                | Roseovarius nubinhibins ISM           |
+| Roso.217   | Roseovariussp.217                | Roseovariussp.217                        | Roseovarius sp. 217                   |
+| Roso.2601  | Roseovariussp.HTCC2601           | PelagibacabermudensisHTCC2601            | Pelagibaca bermudensis HTCC2601       |
+| Rueg.R11   | Ruegeriasp.R11                   | Ruegeriasp.R11                           | Ruegeria sp. R11                      |
+| Sagt.E-37  | SagittulastellataE-37            | SagittulastellataE-37                    | Sagittula stellata E-37               |
+| Sili.DSS-3 | SilicibacterpomeroyiDSS-3        | RuegeriapomeroyiDSS-3                    | Ruegeria pomeroyi DSS-3               |
+| Sulf.NAS14 | SulfitobacterNAS-14.1            | Sulfitobactersp.NAS-14.1                 | Sulfitobacter sp. NAS-14.1            |
+| Sulf.EE-36 | Sulfitobactersp.EE-36            | Sulfitobactersp.EE-36                    | Sulfitobacter sp. EE-36               |
+| TM1040     | TM1040                           | Ruegeriasp.TM1040                        | Ruegeria sp. TM1040                   |
+|------------+----------------------------------+------------------------------------------+---------------------------------------|
+
+* Clade 1
+
+|------------+-------------------------------+-------------------------------+---------------------------------|
+| Phae.2.10  | Phaeobactergallaeciensis2.10  | Phaeobactergallaeciensis2.10  | Phaeobacter gallaeciensis 2.10  |
+| Phae.BS107 | PhaeobactergallaeciensisBS107 | PhaeobactergallaeciensisBS107 | Phaeobacter gallaeciensis BS107 |
+| Rueg.R11   | Ruegeriasp.R11                | Ruegeriasp.R11                | Ruegeria sp. R11                |
+| Rosp.ME193 | Roseobactersp.MED193          | Roseobactersp.MED193          | Roseobacter sp. MED193          |
+| Rosp.20926 | Roseobactersp.SK209-2-6       | Roseobactersp.SK209-2-6       | Roseobacter sp. SK209-2-6       |
+| Rhod.Y4I   | RhodobacteralesbacteriumY4I   | RhodobacteralesbacteriumY4I   | Rhodobacterales bacterium Y4I   |
+| TM1040     | TM1040                        | Ruegeriasp.TM1040             | Ruegeria sp. TM1040             |
+| Sili.DSS-3 | SilicibacterpomeroyiDSS-3     | RuegeriapomeroyiDSS-3         | Ruegeria pomeroyi DSS-3         |
+|------------+-------------------------------+-------------------------------+---------------------------------|
+
+
+* Clade 2
+|------------+----------------------------------+----------------------------------+------------------------------------|
+| Oceb.HEL45 | OceanibulbusindolifexHEL-45      | OceanibulbusindolifexHEL-45      | Oceanibulbus indolifex HEL-45      |
+| Rosp.GA101 | Roseobactersp.GAI101             | Roseobactersp.GAI101             | Roseobacter sp. GAI101             |
+| Sulf.NAS14 | SulfitobacterNAS-14.1            | Sulfitobactersp.NAS-14.1         | Sulfitobacter sp. NAS-14.1         |
+| Sulf.EE-36 | Sulfitobactersp.EE-36            | Sulfitobactersp.EE-36            | Sulfitobacter sp. EE-36            |
+| Rosd.OC114 | RoseobacterdenitrificansOCh114   | RoseobacterdenitrificansOCh114   | Roseobacter denitrificans OCh 114  |
+| Rosl.OC149 | RoseobacterlitoralisOch149       | RoseobacterlitoralisOch149       | Roseobacter litoralis Och 149      |
+| Rhod.2083  | RhodobacteralesbacteriumHTCC2083 | RhodobacteralesbacteriumHTCC2083 | Rhodobacterales bacterium HTCC2083 |
+|------------+----------------------------------+----------------------------------+------------------------------------|
+
+* Clade 3
+
+|------------+-----------------------------+-------------------------------+---------------------------------|
+| Ocea.2597  | OceanicolabatsensisHTCC2597 | OceanicolabatsensisHTCC2597   | Oceanicola batsensis HTCC2597   |
+| Roso.2601  | Roseovariussp.HTCC2601      | PelagibacabermudensisHTCC2601 | Pelagibaca bermudensis HTCC2601 |
+| Sagt.E-37  | SagittulastellataE-37       | SagittulastellataE-37         | Sagittula stellata E-37         |
+| Rosp.AzK3b | Roseobactersp.AzwK-3b       | Roseobactersp.AzwK-3b         | Roseobacter sp. AzwK-3b         |
+| Roso.T1035 | RoseovariusTM1035           | Roseovariussp.TM1035          | Roseovarius sp. TM1035          |
+| Roso.217   | Roseovariussp.217           | Roseovariussp.217             | Roseovarius sp. 217             |
+| Rosn.T1035 | RoseovariusnubinhibensISM   | RoseovariusnubinhibinsISM     | Roseovarius nubinhibins ISM     |
+|------------+-----------------------------+-------------------------------+---------------------------------|
+
+* Clade 4
+
+|------------+------------------------------+------------------------------+--------------------------------|
+| Ocea.2516  | OceanicolagranulosusHTCC2516 | OceanicolagranulosusHTCC2516 | Oceanicola granulosus HTCC2516 |
+| Lokt.SKA53 | LoktanellavestfoldensisSKA53 | LoktanellavestfoldensisSKA53 | Loktanella vestfoldensis SKA53 |
+| Rosp.CCS2  | Roseobactersp.CCS2           | Roseobactersp.CCS2           | Roseobacter sp. CCS2           |
+| Octb.238   | Octadecabacterarcticus238    | Octadecabacterarcticus238    | Octadecabacter arcticus 238    |
+| Octb.307   | Octadecabacterantarcticus307 | Octadecabacterantarcticus307 | Octadecabacter antarcticus 307 |
+|------------+------------------------------+------------------------------+--------------------------------|
+
+
+* Missing
+| Phae.2.10  | Phaeobacter gallaeciensis 2.10       |
+| Phae.BS107 | Phaeobacter gallaeciensis BS107      |
+| Rueg.R11   | Ruegeria sp. R11                     |
+| Rosp.ME193 | Roseobacter sp. MED193               |
+| Rosp.20926 | Roseobacter sp. SK209-2-6            |
+| Rhod.Y4I   | Rhodobacterales bacterium Y4I        |
+| TM1040     | Ruegeria sp. TM1040                  |
+| Sili.DSS-3 | Ruegeria pomeroyi DSS-3              |
+| Rhod.2083  | Rhodobacterales bacterium HTCC2083   |
+| Oceb.HEL45 | Oceanibulbus indolifex HEL-45        |
+| Rosp.GA101 | Roseobacter sp. GAI101               |
+| Sulf.NAS14 | Sulfitobacter sp. NAS-14.1           |
+| Sulf.EE-36 | Sulfitobacter sp. EE-36              |
+| Rosd.OC114 | Roseobacter denitrificans OCh 114    |
+| Rosl.OC149 | Roseobacter litoralis Och 149        |
+| Ocea.2597  | Oceanicola batsensis HTCC2597        |
+| Roso.2601? | Pelagibaca bermudensis HTCC2601      |
+| Sagt.E-37  | Sagittula stellata E-37              |
+| Rosp.AzK3b | Roseobacter sp. AzwK-3b              |
+| Roso.T1035 | Roseovarius sp. TM1035               |
+| Roso.217   | Roseovarius sp. 217                  |
+| Ocea.2516  | Oceanicola granulosus HTCC2516       |
+| Lokt.SKA53 | Loktanella vestfoldensis SKA53       |
+| Rosp.CCS2  | Roseobacter sp. CCS2                 |
+| Octb.238   | Octadecabacter arcticus 238          |
+| Octb.307   | Octadecabacter antarcticus 307       |
+| Jann.CCS1  | Jannaschia sp. CCS1                  |
+| Rhod.2654  | Maritimibacter alkaliphilus HTCC2654 |
+| Rhod.2150  | Rhodobacterales bacterium HTCC2150   |
+| Rhod.2255  | Rhodobacterales bacterium HTCC2255   |
+|            | Escherichia coli K12                 |
+| Rosn.T1035 |                                      |
+
+
+* Timings
+** Balibase
+|--------+----+-------+---------------|
+| Method |  k | Count | Time(seconds) |
+|--------+----+-------+---------------|
+| acsk   |  0 |   218 |     69.242970 |
+| acsk   |  1 |   218 |     81.229674 |
+| acsk   |  2 |   218 |    243.634387 |
+| acsk   |  3 |   218 |    554.395423 |
+| acsk   |  4 |   218 |   1141.506357 |
+| acsk   |  5 |   218 |   2770.940533 |
+| kmacs  | 11 |   218 |     52.914281 |
+| kmacs  | 12 |   218 |     54.514489 |
+| kmacs  | 13 |   218 |     57.773730 |
+| spaced | NA |   218 |    158.848412 |
+|--------+----+-------+---------------|

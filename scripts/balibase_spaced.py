@@ -10,7 +10,7 @@ import tempfile
 # python balibase_spaced.py in_dir out_dir spaced_path
 # python balibase_spaced.py
 #         /Users/srirampc/work/phd/research/arakawa/data/balibase/bb3_release
-#         /Users/srirampc/work/phd/research/arakawa/data/balibase/tree
+#         /Users/srirampc/work/phd/research/arakawa/runs/balibase/tree
 #         /Users/srirampc/work/phd/research/arakawa/software/spaced-prdna/spaced
 
 
@@ -35,14 +35,15 @@ for i, fa_name in enumerate(tfa_lst):
     out_file = out_file.replace("tfa", "spaced.out")
     # if os.path.isfile(out_file):
     #    continue
+    log_file = out_file + ".log"
     print i, fa_name, out_file
-    with open(tfname, "w") as tfo:
+    with open(log_file, "w") as tfo:
         rc = subprocess.call([spaced_exe, "-o", out_file, "-k", "4",
                               "-l", "34", "-d", "MS", fa_name],
                              stdout=tfo, stderr=tfo)
     if rc != 0:
         print "ERROR!"
-        with open(tfname) as tf:
+        with open(log_file) as tf:
             print "".join(tf.readlines())
         sys.exit(1)
-os.remove(tfname)
+# os.remove(tfname)

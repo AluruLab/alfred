@@ -1,0 +1,36 @@
+|----------------------------------+-------------------|
+| Full Name given in input         | Short Name I used |
+|----------------------------------+-------------------|
+| DinoroseobactershibaeDFL12       | Dino.DFL12        |
+| Jannaschiasp.CCS1                | Jann.CCS1         |
+| LoktanellavestfoldensisSKA53     | Lokt.SKA53        |
+| OceanibulbusindolifexHEL-45      | Oceb.HEL45        |
+| OceanicolabatsensisHTCC2597      | Ocea.2597         |
+| OceanicolagranulosusHTCC2516     | Ocea.2516         |
+| Octadecabacterantarcticus307     | Octb.238          |
+| Octadecabacterarcticus238        | Octb.307          |
+| Phaeobactergallaeciensis2.10     | Phae.2.10         |
+| PhaeobactergallaeciensisBS107    | Phae.BS107        |
+| RhodobacteralesbacteriumHTCC2083 | Rhod.2083         |
+| RhodobacteralesbacteriumHTCC2150 | Rhod.2150         |
+| RhodobacteralesbacteriumHTCC2255 | Rhod.2255         |
+| RhodobacteralesbacteriumHTCC2654 | Rhod.2654         |
+| RhodobacteralesbacteriumY4I      | Rhod.Y4I          |
+| RoseobacterdenitrificansOCh114   | Rosd.OC114        |
+| RoseobacterlitoralisOch149       | Rosl.OC149        |
+| Roseobactersp.AzwK-3b            | Rosp.AzK3b        |
+| Roseobactersp.CCS2               | Rosp.CCS2         |
+| Roseobactersp.GAI101             | Rosp.GA101        |
+| Roseobactersp.MED193             | Rosp.ME193        |
+| Roseobactersp.SK209-2-6          | Rosp.20926        |
+| RoseovariusTM1035                | Roso.T1035        |
+| RoseovariusnubinhibensISM        | Rosn.T1035        |
+| Roseovariussp.217                | Roso.217          |
+| Roseovariussp.HTCC2601           | Roso.2601         |
+| Ruegeriasp.R11                   | Rueg.R11          |
+| SagittulastellataE-37            | Sagt.E-37         |
+| SilicibacterpomeroyiDSS-3        | Sili.DSS-3        |
+| SulfitobacterNAS-14.1            | Sulf.NAS14        |
+| Sulfitobactersp.EE-36            | Sulf.EE-36        |
+| TM1040                           | TM1040            |
+|----------------------------------+-------------------|
