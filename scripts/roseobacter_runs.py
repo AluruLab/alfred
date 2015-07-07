@@ -7,9 +7,9 @@ import glob
 #
 # run as
 # python roseobacter_runs.py
-#   ../data/roseobacter/
-#   ../runs/roseobacter
-#   ../build/arakawa.x ../software/kmacs/kmacs ../software/spaced-prdna/spaced
+#   ../../data/roseobacter/
+#   ../../runs/roseobacter
+#   ../../build/arakawa.x ../../software/kmacs/kmacs ../../software/spaced-prdna/spaced
 
 in_dir = os.path.abspath(sys.argv[1])
 out_dir = os.path.abspath(sys.argv[2])
@@ -46,7 +46,7 @@ for k in [2, 4, 6]:
 
 for i, fa_name in enumerate(fas_lst):
     out_file = os.path.join(out_dir, os.path.basename(fa_name))
-    out_file = out_file.replace("fas", "spaced.k" + str(k) + ".out")
+    out_file = out_file.replace("fas", "spaced.out")
     log_file = out_file + ".log"
     print i, 0, fa_name, out_file
     rc = 0

@@ -11,7 +11,7 @@ import tempfile
 # how I ran :
 # python balibase_tree.py
 #    /Users/srirampc/work/phd/research/arakawa/data/balibase/bb3_release
-#    /Users/srirampc/work/phd/research/arakawa/data/balibase/tree
+#    /Users/srirampc/work/phd/research/arakawa/runs/balibase/tree
 #    /Users/srirampc/work/phd/research/arakawa/software/bin/proml
 #    /Users/srirampc/work/phd/research/arakawa/software/bin/sreformat
 

@@ -2,7 +2,7 @@ library("phangorn")
 library("plyr")
 library("stringr")
 #
-# run as
+# run as Rscript balibase_kacs_dist.R
 #   /Users/srirampc/work/phd/research/arakawa/data/balibase/tree
 #
 args <- commandArgs(TRUE)
