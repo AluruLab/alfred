@@ -36,7 +36,17 @@
 | TM1040     | TM1040                           | Ruegeriasp.TM1040                        | Ruegeria sp. TM1040                   |
 |------------+----------------------------------+------------------------------------------+---------------------------------------|
 
-* Clade 1
+** Clade files
+
+|---------+--------------------------------------------------------------------------------------------------------|
+| clade 1 | Ocea.2516.fa Lokt.SKA53.fa Rosp.CCS2.fa Octb.238.fa Octb.307.fa                                        |
+| clade 2 | Ocea.2597.fa Roso.2601.fa Sagt.E-37.fa Rosp.AzK3b.fa Roso.T1035.fa Roso.217.fa Rosn.T1035.fa           |
+| clade 3 | Oceb.HEL45.fa  Rosp.GA101.fa  Sulf.NAS14.fa Sulf.EE-36.fa Rosd.OC114.fa Rosl.OC149.fa Rhod.2083.fa     |
+| clade 4 | Phae.2.10.fa Phae.BS107.fa Rueg.R11.fa Rosp.ME193.fa Rosp.20926.fa Rhod.Y4I.fa TM1040.fa Sili.DSS-3.fa |
+|---------+--------------------------------------------------------------------------------------------------------|
+
+
+** Clade 1
 
 |------------+-------------------------------+-------------------------------+---------------------------------|
 | Phae.2.10  | Phaeobactergallaeciensis2.10  | Phaeobactergallaeciensis2.10  | Phaeobacter gallaeciensis 2.10  |
@@ -50,7 +60,7 @@
 |------------+-------------------------------+-------------------------------+---------------------------------|
 
 
-* Clade 2
+** Clade 2
 |------------+----------------------------------+----------------------------------+------------------------------------|
 | Oceb.HEL45 | OceanibulbusindolifexHEL-45      | OceanibulbusindolifexHEL-45      | Oceanibulbus indolifex HEL-45      |
 | Rosp.GA101 | Roseobactersp.GAI101             | Roseobactersp.GAI101             | Roseobacter sp. GAI101             |
@@ -61,7 +71,7 @@
 | Rhod.2083  | RhodobacteralesbacteriumHTCC2083 | RhodobacteralesbacteriumHTCC2083 | Rhodobacterales bacterium HTCC2083 |
 |------------+----------------------------------+----------------------------------+------------------------------------|
 
-* Clade 3
+** Clade 3
 
 |------------+-----------------------------+-------------------------------+---------------------------------|
 | Ocea.2597  | OceanicolabatsensisHTCC2597 | OceanicolabatsensisHTCC2597   | Oceanicola batsensis HTCC2597   |
@@ -73,7 +83,7 @@
 | Rosn.T1035 | RoseovariusnubinhibensISM   | RoseovariusnubinhibinsISM     | Roseovarius nubinhibins ISM     |
 |------------+-----------------------------+-------------------------------+---------------------------------|
 
-* Clade 4
+** Clade 4
 
 |------------+------------------------------+------------------------------+--------------------------------|
 | Ocea.2516  | OceanicolagranulosusHTCC2516 | OceanicolagranulosusHTCC2516 | Oceanicola granulosus HTCC2516 |
@@ -84,7 +94,11 @@
 |------------+------------------------------+------------------------------+--------------------------------|
 
 
-* Missing
+** Missing
+
+|------------+--------------------------------------|
+| Seq        | Tree                                 |
+|------------+--------------------------------------|
 | Phae.2.10  | Phaeobacter gallaeciensis 2.10       |
 | Phae.BS107 | Phaeobacter gallaeciensis BS107      |
 | Rueg.R11   | Ruegeria sp. R11                     |
@@ -117,10 +131,18 @@
 | Rhod.2255  | Rhodobacterales bacterium HTCC2255   |
 |            | Escherichia coli K12                 |
 | Rosn.T1035 |                                      |
+|------------+--------------------------------------|
+
+** Visuals
+
+http://evolgenius.info/evolview/#shared/LLwfbMQXEJ
+
+** TODO Timings
 
 
-* Timings
-** Balibase
+* Balibase
+** Timings
+
 |--------+----+-------+---------------|
 | Method |  k | Count | Time(seconds) |
 |--------+----+-------+---------------|
