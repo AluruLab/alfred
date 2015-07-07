@@ -157,3 +157,60 @@ http://evolgenius.info/evolview/#shared/LLwfbMQXEJ
 | kmacs  | 13 |   218 |     57.773730 |
 | spaced | NA |   218 |    158.848412 |
 |--------+----+-------+---------------|
+
+* Roseobacter
+** Timings
+|--------+----+---------+----------------|
+| Method |  k | dataset | Time (seconds) |
+|--------+----+---------+----------------|
+| acsk   |  0 | full    |        9.93864 |
+| acsk   |  1 | full    |       14.74190 |
+| acsk   |  2 | full    |       61.21550 |
+| acsk   |  3 | full    |      168.79700 |
+| acsk   |  4 | full    |      376.92400 |
+| acsk   |  5 | full    |      742.43100 |
+| acsk   |  0 | clade1  |        0.56409 |
+| acsk   |  1 | clade1  |        0.82396 |
+| acsk   |  2 | clade1  |        3.40626 |
+| acsk   |  3 | clade1  |        9.41417 |
+| acsk   |  4 | clade1  |       21.15550 |
+| acsk   |  5 | clade1  |       42.11610 |
+| acsk   |  0 | clade2  |        0.41973 |
+| acsk   |  1 | clade2  |        0.62026 |
+| acsk   |  2 | clade2  |        2.55720 |
+| acsk   |  3 | clade2  |        7.07334 |
+| acsk   |  4 | clade2  |       15.87430 |
+| acsk   |  5 | clade2  |       31.42090 |
+| acsk   |  0 | clade3  |        0.42211 |
+| acsk   |  1 | clade3  |        0.62599 |
+| acsk   |  2 | clade3  |        2.60339 |
+| acsk   |  3 | clade3  |        7.17841 |
+| acsk   |  4 | clade3  |       16.06130 |
+| acsk   |  5 | clade3  |       31.76170 |
+| acsk   |  0 | clade4  |        0.20249 |
+| acsk   |  1 | clade4  |        0.29794 |
+| acsk   |  2 | clade4  |        1.22842 |
+| acsk   |  3 | clade4  |        3.40961 |
+| acsk   |  4 | clade4  |        7.58530 |
+| acsk   |  5 | clade4  |       15.00590 |
+| kmacs  |  2 | full    |        4.62702 |
+| kmacs  |  4 | full    |        5.52833 |
+| kmacs  |  6 | full    |        6.34862 |
+| kmacs  |  2 | clade1  |        0.27407 |
+| kmacs  |  4 | clade1  |        0.34493 |
+| kmacs  |  6 | clade1  |        0.41088 |
+| kmacs  |  2 | clade2  |        0.21477 |
+| kmacs  |  4 | clade2  |        0.27253 |
+| kmacs  |  6 | clade2  |        0.32214 |
+| kmacs  |  2 | clade3  |        0.19722 |
+| kmacs  |  4 | clade3  |        0.23719 |
+| kmacs  |  6 | clade3  |        0.27538 |
+| kmacs  |  2 | clade4  |        0.09656 |
+| kmacs  |  4 | clade4  |        0.11581 |
+| kmacs  |  6 | clade4  |        0.13288 |
+| spaced | NA | full    |        4.78086 |
+| spaced | NA | clade1  |        0.39579 |
+| spaced | NA | clade2  |        0.29171 |
+| spaced | NA | clade3  |        0.30744 |
+| spaced | NA | clade4  |        0.17987 |
+|--------+----+---------+----------------|
