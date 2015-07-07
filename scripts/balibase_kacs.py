@@ -3,7 +3,6 @@ import subprocess
 import os
 import os.path
 import glob
-import tempfile
 
 #
 # run as
@@ -18,12 +17,6 @@ out_root = os.path.abspath(sys.argv[2])
 kacs_exe = sys.argv[3]
 tfa_pattern = os.path.join(in_dir, "RV*", "BB[0-9]*.tfa")
 tfa_lst = glob.glob(tfa_pattern)
-tfname = tempfile.mktemp()
-tfphyl = tempfile.mktemp()
-tfphot = tempfile.mktemp()
-print tfname
-print tfphyl
-print tfphot
 print len(tfa_lst)
 for k in [0, 1, 2, 3, 4, 5]:
     for i, fa_name in enumerate(tfa_lst):
@@ -40,6 +33,3 @@ for k in [0, 1, 2, 3, 4, 5]:
         if rc != 0:
             print "ERROR!"
             sys.exit(1)
-# os.remove(tfname)
-# os.remove(tfphyl)
-# os.remove(tfphot)
