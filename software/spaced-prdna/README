@@ -1,0 +1,40 @@
+to compile type:
+	make
+
+run with:
+	./spaced [options] <sequence file>
+
+options:
+	 -h: print this help and exit
+	 -f <file>: specify file containing patterns that should be used
+	 -p <file>: specify file in which used patterns will be saved afterwards
+	 -o <file>: specify the output file name (default: <sequence file> + .dmat)
+	 -k <integer>: specify pattern weight
+	 -l <integer>: specify pattern don't care positions
+	 -n <integer>: specify amount of patterns you want to generate
+	 -t <integer>: specify amount of threads that should be used (default: number of sequences, fastest)
+	 -s: save single matrices as well as the combined matrix
+	 -v: fixed pattern lengths (default: variable)
+	 -quiet: no status messages (errors and progress will still be printed)
+
+_______________________________________________________________________________________________________________
+Scientific publications using Spaced Words should cite:
+
+    C.-A. Leimeister, M. Boden, S. Horwege, S. Lindner, B. Morgenstern (2014)
+    Fast alignment-free sequence comparison using spaced-word frequencies
+    Bioinformatics, DOI: 10.1093/bioinformatics/btu177 (http://bioinformatics.oxfordjournals.org/content/early/2014/04/03/bioinformatics.btu177)
+    
+    
+    S. Horwege, S. Linder, M. Boden, K. Hatje, M. Kollmar, C.-A. Leimeister, B. Morgenstern (2014)
+    Spaced words and kmacs: fast alignment-free sequence comparison based on inexact word matches
+    Nuc. Acids Research 42, W7-W11 (http://nar.oxfordjournals.org/content/42/W1/W7.abstract)
+
+   
+    B. Morgenstern, B. Zhu, S. Horwege, C.-A. Leimeister (2014)
+    Estimating evolutionary distances from spaced-word matches
+    In: Proceedings WABI 2014, Lecture Notes in Bioinformatics, pp. 161-173
+    Springer Verlag
+_______________________________________________________________________________________________________________
+
+contact:
+chris.leimeister@stud.uni-goettingen.de or sebastian.horwege@stud.uni-goettingen.de
