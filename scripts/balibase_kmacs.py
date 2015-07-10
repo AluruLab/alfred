@@ -4,14 +4,11 @@ import os
 import os.path
 import glob
 import tempfile
-
 #
 # run as
 # python balibase_kmacs.py in_dir out_dir kmacs_path
-# python balibase_kmacs.py
-#         /Users/srirampc/work/phd/research/arakawa/data/balibase/bb3_release
-#         /Users/srirampc/work/phd/research/arakawa/runs/balibase/tree
-#         /Users/srirampc/work/phd/research/arakawa/software/kmacs/kmacs
+# python balibase_kmacs.py ../data/balibase/bb3_release ../runs/balibase/tree
+#         ../software/kmacs/kmacs
 
 
 in_dir = os.path.abspath(sys.argv[1])
@@ -27,7 +24,7 @@ print tfphyl
 print tfphot
 print len(tfa_lst)
 #  for k in [0, 1, 2, 3, 4, 5]:
-for k in [11, 12, 13]:
+for k in [0, 11, 12, 13, 14, 15]:
     for i, fa_name in enumerate(tfa_lst):
         fa_dir = os.path.dirname(fa_name)
         fa_base = os.path.basename(fa_dir)

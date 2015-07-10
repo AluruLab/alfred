@@ -7,16 +7,17 @@ import tempfile
 
 #
 # run as
-# python roseobacter_nbr.py in_dir out_dir nbr_exe_path
+# python primates_nbr.py in_dir out_dir nbr_exe_path
 # how I ran :
-
-# python roseobacter_nbr.py ../runs/roseobacter ../runs/roseobacter
-#    ../software/bin/neighbor
+# python primates_nbr.py
+#    /Users/srirampc/work/phd/research/arakawa/runs/primates
+#    /Users/srirampc/work/phd/research/arakawa/runs/primates
+#    /Users/srirampc/work/phd/research/arakawa/software/bin/neighbor
 
 in_dir = os.path.abspath(sys.argv[1])
 out_dir = os.path.abspath(sys.argv[2])
 nbr_exe = sys.argv[3]
-mat_pattern = os.path.join(in_dir,  "roseobacter.*.out")
+mat_pattern = os.path.join(in_dir,  "primates.*.out")
 mat_lst = glob.glob(mat_pattern)
 tfname = tempfile.mktemp()
 tfphot = tempfile.mktemp()

@@ -2,9 +2,7 @@ library("phangorn")
 library("plyr")
 library("stringr")
 #
-# Rscript roseobacter_dist.R
-#   /Users/srirampc/work/phd/research/arakawa/data/roseobacter
-#   /Users/srirampc/work/phd/research/arakawa/runs/roseobacter
+# Rscript roseobacter_dist.R ../data/roseobacter ../runs/roseobacter
 args <- commandArgs(TRUE)
 ref.dir <- args[1]
 run.dir <- args[2]
@@ -16,7 +14,7 @@ rf.dist <- function(tfx, tfy){
     RF.dist(rx,  collapse.singles(ry))
 }
 
-rfiles <- list.files(run.dir, pattern = "^roseo.*tree$", full.names = T)
+rfiles <- list.files(run.dir, pattern = "^roseobacter.full.*tree$", full.names = T)
 dist.df <- ldply(rfiles, function(tfx){
     bfn <- basename(tfx)
     spt <- str_split(bfn, "\\.")
@@ -29,7 +27,7 @@ dist.df <- ldply(rfiles, function(tfx){
     }
     tfy <- paste(ref.dir, paste(org, cld, "tree", sep = "."), sep = "/")
     print(paste(tfy, tfx))
-    c(dataset = cld, method = mtd, errs = kvx,
+    c(dataset = paste(org,cld, sep ="."), method = mtd, errs = kvx,
       dist = rf.dist(tfx,tfy))
 })
 
