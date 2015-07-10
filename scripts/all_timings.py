@@ -21,9 +21,9 @@ def acs_timings(in_dir, pattern_pfx, kvals, dataset=""):
             with open(fname) as f:
                 jlog = json.load(f)
                 total_time += float(jlog['total_time_secs'])
-        print "%s\t%d\t%s\t%s\t%.2f" % ("acsk", k, len(kacs_list),
-                                        dataset, total_time)
-#        print "\t".join(map(str,
+        print "%s,%d,%s,%s,%.2f" % ("acsk", k, len(kacs_list),
+                                    dataset, total_time)
+#        print ",".join(map(str,
 #                            ["acsk", k, len(kacs_list), dataset, total_time]))
 
 
@@ -39,8 +39,8 @@ def kmacs_timings(in_dir, pattern_pfx, kvals, dataset=""):
                         elts = line.split(" ")
                         assert(len(elts) >= 3)
                         total_time += float(elts[2])
-        print "%s\t%d\t%s\t%s\t%.2f" % ("kmacs", k, len(kmacs_list),
-                                        dataset, total_time)
+        print "%s,%d,%s,%s,%.2f" % ("kmacs", k, len(kmacs_list),
+                                    dataset, total_time)
 
 
 def spaced_timings(in_dir, pattern_pfx, dataset=""):
@@ -54,9 +54,8 @@ def spaced_timings(in_dir, pattern_pfx, dataset=""):
                     elts = line.split(" ")
                     assert(len(elts) >= 3)
                     total_time += float(elts[2])
-    print "%s\t%s\t%s\t%s\t%.2f" % ("spaced", "NA", len(spaced_list),
-                                    dataset, total_time)
-
+    print "%s,%s,%s,%s,%.2f" % ("spaced", "NA", len(spaced_list),
+                                dataset, total_time)
 
 
 def balibase_timings(bbdir):

@@ -34,4 +34,4 @@ dist.df <- ldply(rfiles, function(tfx){
       dist = rf.dist(tfx,tfy))
 })
 
-write.table(dist.df, "primates.results.out")
+write.csv(dist.df, "primates.results.csv", row.names = F)

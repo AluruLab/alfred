@@ -31,4 +31,4 @@ dist.df <- ldply(rfiles, function(tfx){
       dist = rf.dist(tfx,tfy))
 })
 
-write.table(dist.df, "roseobacter.results.out")
+write.csv(dist.df, "roseobacter.results.csv", row.names = FALSE)

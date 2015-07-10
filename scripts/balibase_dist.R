@@ -113,7 +113,7 @@ spaced.avg.df <- ddply(spaced.dist.df, .(errs), function(kdx){
 })
 
 final.df = rbind(kacs.avg.df, kmacs.avg.df, spaced.avg.df)
-write.table(final.df[,c(2,3,1,4)], "balibase.results.out")
+write.csv(final.df[,c(2,3,1,4)], "balibase.results.csv", row.names = FALSE)
 
 
 # rf.dist(args[1], args[2])
