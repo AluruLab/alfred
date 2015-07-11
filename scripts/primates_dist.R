@@ -2,9 +2,7 @@ library("phangorn")
 library("plyr")
 library("stringr")
 #
-# Rscript roseobacter_dist.R
-#   /Users/srirampc/work/phd/research/arakawa/data/primates
-#   /Users/srirampc/work/phd/research/arakawa/runs/primates
+# Rscript primates_dist.R ../data/primates ../runs/primates
 args <- commandArgs(TRUE)
 ref.dir <- args[1]
 run.dir <- args[2]
@@ -18,7 +16,28 @@ rf.dist <- function(tfx, tfy){
     RF.dist(rx,  ry)
 }
 
-rfiles <- list.files(run.dir, pattern = "^primates.*tree$", full.names = T)
+method.name <- function(fname, kvx){
+    if(fname == "acs"){
+        "alfred-e"
+    } else if(fname == "alfred"){
+        "alfred-h"
+    } else if(fname == "kmacs" && kvx == "k0"){
+        "kmacs"
+    } else {
+        fname
+    }
+}
+
+err.value <- function(fname, kvx){
+    if (fname == "spaced"){
+        "X"
+    } else {
+        str_replace(str_replace(kvx, pattern = "x", replacement = ""),
+                    pattern = "k", replacement = "")
+    }
+}
+
+rfiles <- list.files(run.dir, pattern = "^primates\\.[ak][lm].*\\.[kx][0-9].tree$", full.names = T)
 dist.df <- ldply(rfiles, function(tfx){
     bfn <- basename(tfx)
     spt <- str_split(bfn, "\\.")
@@ -30,8 +49,14 @@ dist.df <- ldply(rfiles, function(tfx){
     }
     tfy <- paste(ref.dir, paste(org, "tree", sep = "."), sep = "/")
     print(paste(tfy, tfx))
-    c(dataset = org, method = mtd, errs = kvx,
-      dist = rf.dist(tfx,tfy))
+    if(mtd == "acs" && kvx == "k0"){
+        NULL
+    }
+    else {
+        c(dataset = org, method = method.name(mtd, kvx),
+          errs = err.value(mtd, kvx),
+          dist = rf.dist(tfx,tfy))
+    }
 })
 
 write.csv(dist.df, "primates.results.csv", row.names = F)

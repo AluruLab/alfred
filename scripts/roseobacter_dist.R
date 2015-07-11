@@ -14,7 +14,30 @@ rf.dist <- function(tfx, tfy){
     RF.dist(rx,  collapse.singles(ry))
 }
 
-rfiles <- list.files(run.dir, pattern = "^roseobacter.full.*tree$", full.names = T)
+method.name <- function(fname, kvx){
+    if(fname == "acs"){
+        "alfred-e"
+    } else if(fname == "alfred"){
+        "alfred-h"
+    } else if(fname == "kmacs" && kvx == "k0"){
+        "kmacs"
+    } else {
+        fname
+    }
+}
+
+err.value <- function(fname, kvx){
+    if (fname == "spaced"){
+        "X"
+    } else {
+        str_replace(str_replace(kvx, pattern = "x", replacement = ""),
+                    pattern = "k", replacement = "")
+    }
+}
+
+# rfiles <- list.files(run.dir, pattern = "^roseobacter.full.*tree$", full.names = T)
+rfiles <- list.files(run.dir, pattern = "^roseobacter\\.full\\.[ak][lm].*\\.[kx][0-9].tree$", full.names = T)
+
 dist.df <- ldply(rfiles, function(tfx){
     bfn <- basename(tfx)
     spt <- str_split(bfn, "\\.")
@@ -27,8 +50,14 @@ dist.df <- ldply(rfiles, function(tfx){
     }
     tfy <- paste(ref.dir, paste(org, cld, "tree", sep = "."), sep = "/")
     print(paste(tfy, tfx))
-    c(dataset = paste(org,cld, sep ="."), method = mtd, errs = kvx,
-      dist = rf.dist(tfx,tfy))
+    if(mtd == "acs" && kvx == "k0"){
+        NULL
+    }
+    else {
+        c(dataset = org, method = method.name(mtd, kvx),
+          errs = err.value(mtd, kvx),
+          dist = rf.dist(tfx,tfy))
+    }
 })
 
 write.csv(dist.df, "roseobacter.results.csv", row.names = FALSE)
