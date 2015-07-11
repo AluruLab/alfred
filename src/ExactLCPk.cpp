@@ -361,24 +361,20 @@ void ExactLCPk::compute0(){
         m_klcpXY[i][1].resize(m_strLengths[i], 0);
     }
 
-    // get all the internal nodes
-    std::vector<InternalNode> uNodes;
-    selectInternalNodes0(uNodes);
-
-    // for each internal node
-    for(auto nit = uNodes.begin(); nit != uNodes.end(); nit++){
-        InternalNode uNode = *nit;
+    InternalNode uNode;
+    uNode.m_leftBound = 2;
+    uNode.m_rightBound = m_gsa.size() - 1;
+    uNode.m_delta = 0;
 #ifdef DEBUG
-        uNode.dwriteln(m_aCfg.lfs);
+    uNode.dwriteln(m_aCfg.lfs);
 #endif
-        //   collect tuples for each position (going left and right)
-        //      (i, i', 0/1) , where i' = gisa[gsa[i] + d + 1]
-        std::vector<L1Suffix> leaves;
-        selectSuffixes0(uNode, leaves);
-        uNode.m_stringDepth = -1; // just to let update use the LCP
-        // update lcp using sorted tuples using a double pass
-        updateExactLCPk(uNode, leaves);
-    }
+    //   collect tuples for each position (going left and right)
+    //      (i, i', 0/1) , where i' = gisa[gsa[i] + d + 1]
+    std::vector<L1Suffix> leaves;
+    selectSuffixes0(uNode, leaves);
+    uNode.m_stringDepth = -1; // just to let update use the LCP
+    // update lcp using sorted tuples using a double pass
+    updateExactLCPk(uNode, leaves);
 }
 
 // Recursive function to compute LCP_k for a given internal node
