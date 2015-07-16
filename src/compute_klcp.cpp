@@ -13,22 +13,28 @@ void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
     const std::string& sx = rdb.getReadById(i);
     const std::string& sy = rdb.getReadById(j);
 
-    lfs << "\"" << key << "\"      : [" << std::endl;
-    lfs << "   [" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
-        << sy.size() << ",\t" << k << "]," << std::endl << "    [" ;
+    lfs << "\"" << key << "\"      : {" << std::endl;
+#ifdef DEBUG
+    lfs << "   \"meta\" : [" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
+        << sy.size() << ",\t" << k << "]," << std::endl;
+#endif
+    lfs << "   \"" << rdb.getReadNameById(i)<< "\": [" << std::endl;
     for(unsigned i = 0; i < lcpKXY[0][0].size(); i++)
-        lfs << "[" << i
+        lfs << "        "
+            << "[" << i
             << ", " << lcpKXY[0][0][i]
             << ", " << lcpKXY[0][1][i]
-            << ((i == lcpKXY[0][0].size() - 1) ? "]" : "],\t");
+            << ((i == lcpKXY[0][0].size() - 1) ? "]" : "],\n");
     lfs << "]," << std::endl;
-    lfs << "    [";
+    lfs << "   \"" << rdb.getReadNameById(j)<< "\": [" << std::endl;
     for(unsigned i = 0; i < lcpKXY[1][0].size(); i++)
-        lfs << "[" << i
+        lfs << "        "
+            << "[" << i
             << ", " << lcpKXY[1][0][i]
             << ", " << lcpKXY[1][1][i]
-            << ((i == lcpKXY[1][0].size() - 1) ? "]" : "],\t");
-    lfs << "]" << std::endl << "  ]," << std::endl;
+            << ((i == lcpKXY[1][0].size() - 1) ? "]" : "],\n");
+    lfs << "]" << std::endl;
+    lfs << "  }," << std::endl;
 
 }
 
@@ -52,6 +58,11 @@ void klcp_pair_factory(unsigned i, unsigned j, ReadsDB& rdb,
 #ifndef DEBUG_KLCP
     print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs, "lcpk");
 #endif
+    cfg.ofs << "{" << std::endl;
+    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv,
+               cfg.ofs, "lcpk");
+    cfg.ofs << "  \"end\": []" << std::endl
+            << "}" << std::endl;
 
 }
 
@@ -70,5 +81,6 @@ void compute_klcp(ReadsDB& rdb, AppConfig& cfg){
                 klcp_pair_factory<ExactLCPk>(i, j, rdb, cfg);
             break;
         }
+        break;
     }
 }

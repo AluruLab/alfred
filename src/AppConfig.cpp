@@ -33,13 +33,15 @@ void AppConfig::printHelp(std::ostream& ots){
         << "\t -k <int>   exact measure number of mismatches [1]" << std::endl
         << "\t -x <int>   heuristic extension length " << std::endl
         << "\t -n         estimate lcp using O(n^2) method" << std::endl
+        << "\t -p         pairwise lcp_k of first two sequences in the input"
+        << std::endl
         << "\t -h         print this help " << std::endl
         << std::endl;
 }
 
 AppConfig::AppConfig(int argc, char** argv){
     char c;
-    const char* params = "i:l:f:o:k:x:nhH";
+    const char* params = "i:l:f:o:k:x:pnhH";
     help = false;
     app = argv[0];
     dir = "";
@@ -49,6 +51,7 @@ AppConfig::AppConfig(int argc, char** argv){
     extend = 0;
     method = 0;
     std::string fstr = "";
+    only_lcp = false;
 
     while ((c = getopt(argc, argv, params)) != -1) {
         switch (c) {
@@ -76,6 +79,9 @@ AppConfig::AppConfig(int argc, char** argv){
             break;
         case 'n':
             method |= 1;
+            break;
+        case 'p':
+            only_lcp = true;
             break;
         case 'x':
             extend = atoi(optarg);

@@ -18,6 +18,7 @@ struct AppConfig{
     int kv;
     int method;
     int extend;
+    bool only_lcp;
 
     void printHelp(std::ostream& ots);
     bool validate(std::ostream& ots);
