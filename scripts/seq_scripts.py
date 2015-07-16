@@ -24,14 +24,14 @@ def gen_4m(seq_4mx2):
             f.write("\n")
 
 
-def gen_23m_50m(seq_big):
+def gen_script(seq_big, prefix):
     for k in [0, 1, 2, 3, 4, 5, 6]:
-        script_name = "seqbig.acs.k" + str(k) + ".pbs"
+        script_name = prefix + ".acs.k" + str(k) + ".pbs"
         with open(script_name, "w") as f:
             script_str = script_fmt % (arakawa_path, arakawa_path,
                                        arakawa_path, seq_big[0],
                                        arakawa_path, seq_big[1],
-                                       'seqbig', 'acs', k, k)
+                                       prefix, 'acs', k, k)
             f.write(script_str)
             f.write("\n")
 
@@ -40,5 +40,7 @@ if __name__ == '__main__':
     arakawa_path = sys.argv[1]
     seq_4mx2 = ['NC_000962.3.fasta', 'NC_000913.3.fasta']
     seq_big = ['NT_033779.4.fasta', 'NC_019478.1.fasta']
+    droso = ['NT_033779.5.fasta', 'NT_033778.4.fasta']
     # gen_4m(seq_4mx2)
-    gen_23m_50m(seq_big)
+    # gen_script(seq_big, "seqbig")
+    gen_script(droso, "droso")
