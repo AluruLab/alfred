@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8)
 
-set(PROJECT_NAME_STR arakawa)
+set(PROJECT_NAME_STR alfred)
 PROJECT(${PROJECT_NAME_STR} C CXX)
 #TODO CHANGE THIS OPTION
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -53,7 +53,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 include_directories("${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(${PROJECT_TEST_NAME} ${CMAKE_THREAD_LIBS_INIT}
                       gtest gtest_main divsufsort divsufsort64)
-add_test(arakawa_test ${PROJECT_TEST_NAME})
+add_test(alfred_test ${PROJECT_TEST_NAME})
 
 # test files
 configure_file(${PROJECT_SOURCE_DIR}/test/banana.fa . COPYONLY)
