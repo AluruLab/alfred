@@ -22,8 +22,8 @@ provides the following options :
 
 ## Compilation
 
-Download the tar.gz file available [here](assets/docs/alfred.tar.gz). Extract the
-contents as follows:
+Download the alfred.tar.gz file available
+[here](assets/docs/alfred.tar.gz). Extract the contents as follows:
 
     tar xvzf alfred.tar.gz
 
@@ -32,39 +32,45 @@ Next, create a build directory. For example,
      mkdir build
      cd build
 
-Finally, configure build the executable 'alfred.x'. Continuing the example,
+Finally, configure and build the executable 'alfred.x'. Continuing the example,
 
      cmake ..
      make
 
+If successfully built, alfred.x should be available in the build directory.
 
 # Usage
 
 ## Preparing Input
 
 Place the input sequences into a single fasta files. Make sure that the
-header of the fasta file has the appropriate sequence name and also that
-the output file has one of fasta or fa or fas extension.  Note that the
-program accepts only sequences with valid DNA or protien alphabets.  An
-example is as shown below.
+header of the fasta file has the appropriate sequence name. For example,
+PHYLIP doesn't accept sequence names longer than 10 characters. Also,
+make sure that the input file has one of 'fasta' or 'fa' or 'fas' file
+extension. Note that the program accepts only sequences with valid DNA
+or protien alphabets. An example is as shown below.
 
     >SeqName
     ACGTTAGAGTAAATGGAGTAGAAT
 
 ## Compute k-mismatch Average common substrings for a string database
-Run the program while providing this input file as -f option, the output
-file as the -o option, and the number of mismatches to allow is given as
--k option. An example is shown below:
+Run the program by providing the pepared input file with -f option,
+the output file with the -o option, and the number of mismatches to allow
+with -k option. An example is shown below:
 
     build/alfred.x -f primates.full.fas -o acs.primates.k3.out -k 3
 
 Output is generated in a matrix format, which can be fed directly to PHYLIP
 
-## Compute k-mismatch LCP between two sequences
-Run the program in the same manner shown above, add the -p option to stop after generating the k-mismatch LCP values. An example is shown below:
+## Compute k-mismatch LCP between two sequences X and Y
+
+Run the program in the same manner shown above, and add the -p option to
+stop after generating the k-mismatch LCP values. An example is shown
+below:
 
     build/alfred.x -f primates.full.fas -o acs.primates.k3.out -k 3 -p
 
-Output is generated in json format. json ouput has two arrays -- one for
-each string. Each array L is of the length of the string, where i-th
-entry of L has both index and length of longest common substring for the suffix starting at i.
+Output is generated in the json format. json ouput has two arrays, LX
+and LY -- one corresponding to string. The array LX is of the length of
+the string X, where i-th entry of LX has the position of Y and the
+length of longest common substring for the suffix of X starting at i.
