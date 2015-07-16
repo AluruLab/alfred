@@ -6,8 +6,7 @@ import json
 
 # python balibase_timings.py balibase_dir
 # run as
-#   python all_timings.py
-#     ../runs/balibase/tree ../roseobacter ../primates
+#   python all_timings.py ../runs/balibase/tree ../roseobacter ../primates
 
 
 def acs_timings(in_dir, pattern_pfx, kvals, dataset=""):

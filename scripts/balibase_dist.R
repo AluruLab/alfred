@@ -3,7 +3,7 @@ library("plyr")
 library("stringr")
 #
 # run as
-#   Rscript balibase_kacs_dist.R ../runs/balibase/tree
+#   Rscript balibase_dist.R ../runs/balibase/tree
 #
 args <- commandArgs(TRUE)
 run.dir <- args[1]
