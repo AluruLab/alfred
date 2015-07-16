@@ -1,0 +1,75 @@
+# AlFreD :  Alignment Free Distance Estimator
+
+AlFreD is an Alignment Free Distance Estimator software. Currently,
+provides the following options :
+
+1. Compute k-mismatch longest common substring using the prefix-chopping
+   algorithm for a pair of sequneces.
+2. Compute k-mistmatch average common substring for every pair of
+   strings present in a database of strings.
+
+# Installation
+
+## Dependencies
+### External Dependencies that need to be installed
+* A modern, C++11 ready compiler such as `g++` version 4.8 or higher or `clang` version 3.2 or higher.
+* The [cmake](www.cmake.org) build system (Version >= 2.8.11).
+* A 64-bit operating system. Either Mac OS X or Linux are currently supported.
+* Git version control system
+
+### Dependices made available with the gz file
+* [googletest](https://code.google.com/p/googletest/) is included as git submodule.
+* [libdivsufsort](https://github.com/y-256/libdivsufsort) libraries are copied in the directory.
+
+## Compilation
+
+Download the tar file available [here](alfred.tar.gz). Extract the
+contents as follows:
+
+    tar xvzf alfred.tar.gz
+
+Next, Create a build directory. For example,
+
+     mkdir build
+     cd build
+
+Finally, build the executable 'alfred.x'.
+
+     cmake ..
+     make
+
+
+# Usage
+
+## Preparing Input
+
+Place the input sequences into a single fasta files. Make sure that the
+header of the fasta file has the appropriate sequence name. An example
+is shown below.
+
+    >SeqName
+    ACGT
+
+Note that the program accepts only sequences with valid DNA or protien
+alphabet.
+
+## Compute k-mismatch Average common substrings for a string database
+Run the program while providing this input file as -f option, the output file as the -o option, and the number of mismatches to allow is given as -k option.
+
+An example is shown below:
+
+    build/arakawa.x -i data/primates/primates.full.fas -o acs.primates.k3.out -k 3
+
+Output is generated in a matrix format, which can be fed directly to PHYLIP
+
+## Compute k-mismatch LCP between two sequences
+
+Run the program in the same manner shown above, add the -p option to stop after generating the k-mismatch LCP values.
+
+An example is shown below:
+
+    build/arakawa.x -i data/primates/primates.full.fas -o acs.primates.k3.out -k 3 -p
+
+Output is generates in json format, with two arrays -- one for each
+string, having both the index and length of longest common substring for
+each position of the two strings.
