@@ -2,6 +2,7 @@ library(stringr)
 library(ggplot2)
 library(ggplot2)
 library(gridExtra)
+source("../scripts/plot_helper.R")
 
 grid_arrange_shared_legend <- function(...) {
     plots <- list(...)
@@ -153,8 +154,65 @@ pm_plot <- function(){
   
 }
 
-rb_plot()
-bl_plot()
-pm_plot()
+# rb_plot()
+# bl_plot()
+# pm_plot()
+exact_dist_plot <- function(csv.name, dataset){
+  bx = read.csv(csv.name, header = T, as.is = T)
+  bx$errs = factor(bx$errs)
+  bx$method = factor(bx$method)
+  levels(bx$method) = c("AlFreD (Exact)")
+  ggplot(data = bx, aes(x=errs, y=dist, fill=method)) +
+    geom_bar(stat="identity", position="dodge") +
+    geom_text(aes(label = dist, y = dist+0.125), size = 3) +
+    xlab("Hamming Distance, k") +
+    ylab("Robinson-Foulds Distance") +
+    theme(legend.position="none") +
+    #labs(fill="") + 
+    #theme(legend.position="top") +
+    #theme(legend.key.size = unit(0.3, "cm")) +
+    scale_fill_brewer(palette="Set2") +
+    theme(axis.title=element_text(size=10)) 
+}
+
+exact_time_plot <- function(csv.name, dataset, tshift=70){
+  bx = read.csv(csv.name, header = T, as.is = T)
+  bx$tshift=tshift
+  bx$errs = factor(bx$errs)
+  bx$method = factor(bx$method)
+  levels(bx$method) = c("AlFreD (Exact)")
+  ggplot(data = bx[bx$dataset == dataset, ],
+         aes(x=errs, y=time, fill=method)) +
+    geom_bar(stat="identity", position="dodge") +
+    geom_text(aes(label = time, y = time+tshift), size = 3) +
+    xlab("Hamming Distance, k") +
+    ylab("Run Time (seconds)") +
+    theme(legend.position="none") +
+    #labs(fill="") + 
+    #theme(legend.position="top") +
+    #theme(legend.key.size = unit(0.3, "cm")) +
+    scale_fill_brewer(palette="Set2") +
+    theme(axis.title=element_text(size=10)) 
+}
+
+etm_plot <- function(){
+  etp = exact_time_plot("../scripts/exact.timings.csv", "primates", 70)
+  edp = exact_dist_plot("../scripts/exact.results.csv", "primates")
+  pdf("exact_primates_plot.pdf", width=6.94, height=3.88, onefile=FALSE)
+  multiplot(etp,edp, cols=2)
+  dev.off()  
+  
+  droso_plot = exact_time_plot("../scripts/exact.timings.csv",
+                               "droso", 120)
+  #pdf("exact_droso_plot.pdf", width=3.47, height=3.88, onefile=FALSE)
+  #dev.off()  
+  ggsave(filename = "exact_droso_plot.pdf", plot=droso_plot,
+         width=3.47,height=3.88,units="in")
+
+  ecoli_plot = exact_time_plot("../scripts/exact.timings.csv",
+                               "seq4Mx2", 280)
+  ggsave(filename = "exact_ecoli_plot.pdf", plot=ecoli_plot,
+         width=3.55,height=3.88,units="in")
+}
 
 

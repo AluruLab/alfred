@@ -4,3 +4,6 @@
 [submodule "paper/wlatex"]
 	path = paper/wlatex
 	url = https://git.overleaf.com/2820003wnnfsw
+[submodule "paper/alfred"]
+	path = paper/alfred
+	url = https://git.overleaf.com/2985557vgdjnj
