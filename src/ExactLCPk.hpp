@@ -5,6 +5,7 @@
 #include "AppConfig.hpp"
 #include "ReadsDB.hpp"
 #include "rmq_support_sparse_table.hpp"
+#include <stack>
 
 struct InternalNode{
     int32_t m_leftBound;
@@ -158,7 +159,7 @@ private:
         return rangeMinLCP(m1.m_errSAPos, m2.m_errSAPos);
     }
 
-    inline int32_t sufRangeMinLCP(const int32_t& t1, const int32_t& t2){
+    inline int32_t sufRangeMinLCP(int32_t t1, int32_t t2) const{
         if(t1 < 0 || t2 < 0)
             return 0;
         if(std::max(t1, t2) >= (int32_t)m_gsa.size())
@@ -271,6 +272,7 @@ private:
                          std::vector<L1Suffix>& leaves);
 public:
     friend class HeuristicLCPk;
+    friend class LRHeuristicLCPk;
     ExactLCPk(const std::string& x, const std::string& y,
               AppConfig& cfg);
     void print(std::ostream& ofs);
@@ -280,6 +282,83 @@ public:
     }
     void computeTest(int k);
 };
+
+template<typename SizeType, typename CountType>
+void ansvBounds0(std::vector<SizeType>& sa,
+                 std::vector<CountType>& lcp,
+                 std::vector<SizeType>& left_bounds,
+                 std::vector<SizeType>& right_bounds){
+    std::stack<SizeType> s;
+    // find right and left snv
+    left_bounds.resize(sa.size());
+    for(SizeType ix = 0; ix < (SizeType) sa.size(); ix++){
+        while(!s.empty() &&
+              lcp[s.top()] >= lcp[ix])
+            s.pop();
+        if(s.empty())
+            left_bounds[ix] = 0;
+        else
+            left_bounds[ix] = s.top();
+        s.push(ix);
+    }
+
+    while(!s.empty()) s.pop();
+
+    right_bounds.resize(sa.size());
+    for (SizeType ix = sa.size(); ix > 0; --ix) {
+        while (!s.empty() &&
+               lcp[s.top()] >= lcp[ix - 1])
+            s.pop();
+        if(s.empty())
+            right_bounds[ix - 1] = sa.size() - 1;
+        else
+            right_bounds[ix - 1] = (s.top() > 0) ? s.top() - 1 : 0;
+        s.push(ix - 1);
+    }
+}
+
+template<typename SizeType, typename CountType,
+         typename RangeMinLCP>
+void ansvBoundsK(const std::vector<L1Suffix>& trieLeaves,
+                 RangeMinLCP& rmin_qry,
+                 std::vector<SizeType>& left_bounds,
+                 std::vector<SizeType>& right_bounds){
+    if(trieLeaves.size() == 0)
+        return;
+    std::stack<SizeType> s;
+    // todo: find right and left snv
+    left_bounds.resize(trieLeaves.size());
+    left_bounds[0] = 0;
+    for(SizeType ix = 1; ix < (SizeType)trieLeaves.size(); ix++){
+        while(!s.empty() && // m_glcp[s.top()] >= m_glcp[ix]
+              (rmin_qry(trieLeaves[s.top() - 1], trieLeaves[s.top()])
+               >=
+               rmin_qry(trieLeaves[ix - 1], trieLeaves[ix])))
+            s.pop();
+        if(s.empty())
+            left_bounds[ix] = 0;
+        else
+            left_bounds[ix] = s.top();
+        s.push(ix);
+    }
+
+    while(!s.empty()) s.pop();
+
+    right_bounds.resize(trieLeaves.size());
+    for (SizeType ix = trieLeaves.size(); ix > 1; --ix) {
+        while (!s.empty() && // m_glcp[s.top()] >= m_glcp[ix - 1]
+               (rmin_qry(trieLeaves[s.top() - 1], trieLeaves[s.top()])
+                >=
+                rmin_qry(trieLeaves[ix - 2], trieLeaves[ix - 1])))
+            s.pop();
+        if(s.empty())
+            right_bounds[ix - 1] = trieLeaves.size() - 1;
+        else
+            right_bounds[ix - 1] = (s.top() > 0) ? s.top() - 1 : 0;
+        s.push(ix - 1);
+    }
+}
+
 
 
 #endif /* EXACTLCPK_H */

@@ -21,8 +21,7 @@ ExactLCPk::ExactLCPk(const std::string& sx, const std::string& sy,
     construct_isa(m_gsa, m_gisa);
     construct_lcp_kasai(m_strXY.c_str(), m_gsa, m_gisa, m_glcp);
     //construct_lcp_PHI(pxy.c_str(), gsa, glcp);
-    m_rangeMinQuery =
-        std::move(rmq_support_sparse_table<ivec_t, true, ivec_t>(&m_glcp));
+    m_rangeMinQuery = rmq_support_sparse_table<ivec_t, true, ivec_t>(&m_glcp);
     m_nPass = m_passSizes = 0.0;
 }
 
@@ -156,10 +155,12 @@ void ExactLCPk::eliminateDupes(std::vector<InternalNode>& uNodes){
 void ExactLCPk::selectInternalNodes0(std::vector<InternalNode>& uNodes){
     uNodes.resize(m_gsa.size() - 2);
 
+    std::vector<int32_t> lbounds, rbounds;
+    ansvBounds0<int32_t, int32_t>(m_gsa, m_glcp, lbounds, rbounds);
     // Get all the internal nodes
     for(int32_t i = 2; i < (int32_t)m_gsa.size() - 1; i++){
-        uNodes[i-2].m_leftBound = leftBound0(i);
-        uNodes[i-2].m_rightBound = rightBound0(i);
+        uNodes[i-2].m_leftBound = lbounds[i]; // leftBound0(i);
+        uNodes[i-2].m_rightBound = rbounds[i]; // rightBound0(i);
         uNodes[i-2].m_stringDepth = m_glcp[i + 1];
         uNodes[i-2].m_delta = 0;
     }
@@ -279,14 +280,26 @@ void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
     // Assume input suffixes are sorted (each suffix is a leaf in the trie)
     trieNodes.resize(leaves.size());
     unsigned j = 0;
+    std::vector<int32_t> lbounds, rbounds;
+    struct RMQ {
+        ExactLCPk& rpx;
+        RMQ(ExactLCPk& px):rpx(px){}
+        inline int32_t operator()(const L1Suffix& x, const L1Suffix& y){
+            return rpx.rangeMinLCP(x, y);
+        }
+    };
+    RMQ rminq(*this);
+    ansvBoundsK<int32_t, int32_t, RMQ>(leaves, rminq, lbounds, rbounds);
     // for each leaf
     for(int32_t i = 0; i < (int32_t)leaves.size(); i++){
         if(leaves[i].m_errSAPos < 2) // skip the one which reach the end
             continue;
         // - make an internal node
         InternalNode uNode;
-        uNode.m_leftBound = leftBoundK(leaves, i); // get left end
-        uNode.m_rightBound = rightBoundK(leaves, i); // get right end
+        // uNode.m_leftBound = leftBoundK(leaves, i); // get left end
+        // uNode.m_rightBound = rightBoundK(leaves, i); // get right end
+        uNode.m_leftBound = lbounds[i];
+        uNode.m_rightBound = rbounds[i];
         if(uNode.m_leftBound == uNode.m_rightBound) // skip internal node with 1 leaf
             continue;
         // prevNode.depth + 1 + get range min lcp of left and right ends

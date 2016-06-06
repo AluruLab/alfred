@@ -97,35 +97,40 @@ balibase_plot <- function(bfname){
     theme(axis.text.x = element_text(angle=45, hjust=1))
 }
 
+cbPalette <- c("#FC9272", "#08519C")
+
 dist_plot <- function(bfname){
   bx = read.csv(bfname, header = T, as.is = T)
+  bx = bx[(bx$method == "alfred-h") | (bx$method == "kmacs"),]
+  bx = bx[(bx$errs %in% c(0,1,2,3,4,5,6,7,8,9)), ]
   bx$errs = factor(bx$errs)
   bx$method = factor(bx$method)
-  levels(bx$method) = c("AlFreD (Hueristic) ","Kmacs")
+  print(levels(bx$method))
+  levels(bx$method) = c("ALFRED-G","Kmacs")
   ggplot(data = bx, aes(x=errs, y=dist, fill=method)) +
     geom_bar(stat="identity", position="dodge") +
-    xlab("Errors") +
+    xlab("Hamming Distance, k") +
     ylab("Robinson-Foulds Distance") +
     labs(fill="") + theme(legend.position="top") +
     theme(legend.key.size = unit(0.3, "cm")) +
     theme(axis.title=element_text(size=10)) +
-    scale_fill_brewer(palette="Set1")
+    scale_fill_manual(values=cbPalette)
 }
 
 time_plot <- function(bfname, dataset){
   bx = read.csv(bfname, header = T, as.is = T)
   bx$errs = factor(bx$errs)
   bx$method = factor(bx$method)
-  levels(bx$method) = c("AlFreD (Hueristic) ","Kmacs")
+  levels(bx$method) = c("ALFRED-G","Kmacs")
   ggplot(data = bx[bx$dataset == dataset, ],
          aes(x=errs, y=time, fill=method)) +
     geom_bar(stat="identity", position="dodge") +
-    xlab("Errors") +
+    xlab("Hamming Distance, k") +
     ylab("Time (seconds)") +
     labs(fill="") + theme(legend.position="top") +
     theme(legend.key.size = unit(0.3, "cm")) +
     theme(axis.title=element_text(size=10)) +
-    scale_fill_brewer(palette="Set1")
+    scale_fill_manual(values=cbPalette)
 }
 
 rb_plot <- function(){
@@ -154,9 +159,9 @@ pm_plot <- function(){
   
 }
 
-# rb_plot()
-# bl_plot()
-# pm_plot()
+rb_plot()
+bl_plot()
+pm_plot()
 exact_dist_plot <- function(csv.name, dataset){
   bx = read.csv(csv.name, header = T, as.is = T)
   bx$errs = factor(bx$errs)

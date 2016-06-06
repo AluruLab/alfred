@@ -138,4 +138,10 @@ static inline bool is_valid_prot(char c){
 static inline bool is_valid_apha(char c){
     return is_valid_dna(c) || is_valid_prot(c);
 }
+
+static inline std::string str_reverse(const std::string& in){
+    std::string rev_out = in;
+    std::reverse(rev_out.begin(), rev_out.end());
+    return rev_out;
+}
 #endif /* UTIL_H */
