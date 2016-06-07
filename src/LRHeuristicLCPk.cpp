@@ -23,8 +23,8 @@ void LRHeuristicLCPk::update(int tidx, int32_t astart,
     assert(nparts > 0);
     assert(fwd_dist.size() == rev_dist.size());
     for(int32_t i = 0; i < nparts; i++){
-        int32_t howfar = fwd_dist[i] + rev_dist[nparts - i - 1];
-        int32_t aback = (i == 0) ? astart : (astart - rev_dist[nparts - i - 1]);
+        int32_t howfar = fwd_dist[i] + rev_dist[nparts - 1 - i];
+        int32_t aback = (i == 0) ? astart : (astart - rev_dist[nparts - 1 - i]);
         if(aback > 0 && m_klcpXY[tidx][1][aback] < (int32_t)howfar){
             m_klcpXY[tidx][1][aback] = howfar;
         }
@@ -32,7 +32,7 @@ void LRHeuristicLCPk::update(int tidx, int32_t astart,
 }
 
 void LRHeuristicLCPk::extendCrawl(const std::string& sa, const std::string& sb,
-                               int tidx){
+                                  int tidx){
     if(m_kextend <= 0)
         return;
     for(int32_t astart = 0; astart < (int32_t) sa.size(); astart++){
@@ -45,7 +45,7 @@ void LRHeuristicLCPk::extendCrawl(const std::string& sa, const std::string& sb,
               (astart + howfar < (int32_t)sa.size())){
             if(sa[astart + howfar] != sb[bstart + howfar]){
                 fwd_dist[kdx] = howfar;
-                kdx += 1;
+                kdx++;
             }
             if(m_kextend < kdx) break;
             howfar++;
@@ -55,7 +55,7 @@ void LRHeuristicLCPk::extendCrawl(const std::string& sa, const std::string& sb,
         while((bstart >= howfar) && (astart >= howfar)){
             if(sa[astart - howfar] != sb[bstart - howfar]){
                 rev_dist[kdx] = howfar - 1;
-                kdx += 1;
+                kdx++;
             }
             if(m_kextend < kdx) break;
             howfar++;
@@ -80,29 +80,27 @@ void LRHeuristicLCPk::extendRMQ(const std::string& sa, const std::string& sb,
         m_aCfg.lfs << " [" << astart << ",\t" << bstart << ",\t"
                    << howfar << ",\t";
 #endif
-        for(int kdx = 0; kdx <= m_kextend ; kdx++){
-            fwd_dist[kdx] = howfar;
+        fwd_dist[0] = howfar + 1;
+        for(int kdx = 1; kdx <= m_kextend ; kdx++){
+            howfar += 1;
             if((bstart + howfar >= (int32_t)sb.size()) ||
                (astart + howfar >= (int32_t)sa.size()))
                 break;
-            howfar += 1;
             int32_t hx = fwd_rmq(tidx, astart + howfar, bstart + howfar);
             howfar += hx;
+            fwd_dist[kdx] = howfar;
 #ifdef DEBUG
             m_aCfg.lfs << howfar << ",\t" << hx << ",\t";
 #endif
         }
-
-
 #ifdef DEBUG
         m_aCfg.lfs << howfar << "]," << std::endl;
 #endif
-
         howfar = 0;
         for(int kdx = 0; kdx <= m_kextend ; kdx++){
+            howfar += 1;
             if((bstart < howfar) || (astart < howfar))
                 break;
-            howfar += 1;
             int32_t hx = rev_rmq(tidx, astart - howfar, bstart - howfar);
             howfar += hx;
             rev_dist[kdx] = howfar - 1;

@@ -35,6 +35,10 @@ private:
 
 
     inline int32_t rev_pos(int32_t sfx){
+        // example :
+        //         0123456789
+        //  FWD:   ABCD$EFGH#
+        //  REV:   HGFE$DCBA#
         if(sfx < (m_totalLength - 1)){
             return (m_totalLength - 2  - sfx); // correct ?
         }
