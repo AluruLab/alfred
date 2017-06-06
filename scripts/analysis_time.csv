@@ -1,0 +1,13 @@
+dataset,method,errs,time
+seq4Mx2,analysis,0,1.00
+seq4Mx2,analysis,1,23.11
+seq4Mx2,analysis,2,534.07
+seq4Mx2,analysis,3,12342.39
+seq4Mx2,analysis,4,285232.70
+seq4Mx2,analysis,5,6591721.03
+primates,analysis,0,1.00
+primates,analysis,1,15.03
+primates,analysis,2,226.20
+primates,analysis,3,3402.07
+primates,analysis,4,51167.27
+primates,analysis,5,769558.24
