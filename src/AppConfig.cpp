@@ -32,6 +32,7 @@ void AppConfig::printHelp(std::ostream& ots){
         << "/path/to/output/file.log]" << std::endl
         << "\t -k <int>   exact measure number of mismatches [1]" << std::endl
         << "\t -x <int>   heuristic extension length " << std::endl
+        << "\t -t <file>  build histogram (uses the heuristic method) and write to the <file>" << std::endl
         << "\t -n         estimate lcp using O(n^2) method" << std::endl
         << "\t -p         pairwise lcp_k of first two sequences in the input"
         << std::endl
@@ -41,7 +42,7 @@ void AppConfig::printHelp(std::ostream& ots){
 
 AppConfig::AppConfig(int argc, char** argv){
     char c;
-    const char* params = "i:l:f:o:k:x:pnhH";
+    const char* params = "i:l:f:o:k:x:t:pnhH";
     help = false;
     app = argv[0];
     dir = "";
@@ -52,6 +53,8 @@ AppConfig::AppConfig(int argc, char** argv){
     method = 0;
     std::string fstr = "";
     only_lcp = false;
+    histogram = false;
+    histf= "";
 
     while ((c = getopt(argc, argv, params)) != -1) {
         switch (c) {
@@ -79,6 +82,10 @@ AppConfig::AppConfig(int argc, char** argv){
             break;
         case 'n':
             method |= 1;
+            break;
+        case 't':
+            histf = optarg;
+            histogram = true;
             break;
         case 'p':
             only_lcp = true;
@@ -139,6 +146,24 @@ bool AppConfig::validate(std::ostream& ots){
         }
     }
 
+    if(histf.length() > 0){
+        histfs.open(histf, std::ofstream::out);
+        if(!histfs.is_open()){
+            ots << "Error opening histogram file : " << histf << std::endl;
+            validCfg = false;
+        }
+    }
+
+    if(histogram){
+        if(kv <= 0 || extend <= 0){
+            ots << "Invalid k or extension values (" << kv
+                << " " << extend << std::endl;
+            if(kv <= 0) kv = 1;
+            ots << "Will use Default values of k = " << kv
+                << " and extend = 5" << std::endl;
+        }
+    }
+
     if(kv < 0){
         ots << "Invalid k value (" << kv
             << "). Using default value of 1" << std::endl;
@@ -163,4 +188,6 @@ AppConfig::~AppConfig(){
         ofs.close();
     if(lfs.is_open())
         lfs.close();
+    if(histfs.is_open())
+        histfs.close();
 }

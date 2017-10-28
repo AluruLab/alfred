@@ -9,6 +9,7 @@ private:
     const std::string& m_sx;
     const std::string& m_sy;
     ivec_t m_klcpXY[2][2];
+    ivec_t m_histoXY[2];
     int32_t m_strLengths[2];
     int32_t m_shiftPos[2][2];
     int m_kextend;
@@ -20,6 +21,7 @@ private:
     void extendCrawl();
     void computeBasisTest(int kv);
     void computeBasis();
+    void computeHistogram();
 public:
     HeuristicLCPk(const std::string& x, const std::string& y,
                   AppConfig& cfg);
