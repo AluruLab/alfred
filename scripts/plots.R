@@ -2,6 +2,7 @@ library(stringr)
 library(ggplot2)
 library(ggplot2)
 library(gridExtra)
+library(grid)
 source("../scripts/plot_helper.R")
 
 grid_arrange_shared_legend <- function(...) {
@@ -13,7 +14,7 @@ grid_arrange_shared_legend <- function(...) {
         x + theme(legend.position="none"))
     arargs$nrow = 1
     grid.arrange(
-        do.call(arrangeGrob, arargs),
+        do.call(gridExtra::arrangeGrob, arargs),
         legend,
         ncol = 1,
         heights = unit.c(unit(1, "npc") - lheight, lheight))
@@ -159,9 +160,7 @@ pm_plot <- function(){
   
 }
 
-rb_plot()
-bl_plot()
-pm_plot()
+
 exact_dist_plot <- function(csv.name, dataset){
   bx = read.csv(csv.name, header = T, as.is = T)
   bx$errs = factor(bx$errs)
@@ -177,6 +176,27 @@ exact_dist_plot <- function(csv.name, dataset){
     #theme(legend.position="top") +
     #theme(legend.key.size = unit(0.3, "cm")) +
     scale_fill_brewer(palette="Set2") +
+    theme(axis.title=element_text(size=10)) 
+}
+
+analysis_time_plot <- function(csv.name, dataset, tshift=70){
+  bx = read.csv(csv.name, header = T, as.is = T)
+  bx$tshift=tshift + (bx$time)
+  bx$errs = factor(bx$errs)
+  bx$method = factor(bx$method)
+  levels(bx$method) = c("Analysis")
+  ggplot(data = bx[bx$dataset == dataset, ],
+         aes(x=errs, y=time, fill=method)) +
+    geom_point() +
+    geom_text(aes(label = time, y = time+tshift), size = 3) +
+    xlab("Hamming Distance, k") +
+    ylab("Complexity Analysis Time") +
+    theme(legend.position="none") +
+    scale_y_log10()+
+    #labs(fill="") + 
+    #theme(legend.position="top") +
+    #theme(legend.key.size = unit(0.3, "cm")) +
+    #scale_color_brewer(palette="Set2") +
     theme(axis.title=element_text(size=10)) 
 }
 
@@ -220,4 +240,75 @@ etm_plot <- function(){
          width=3.55,height=3.88,units="in")
 }
 
+exact_ecoli_plot2 <- function(){
+  p1 = analysis_time_plot("analysis_time.csv", "seq4Mx2", 0)
+  p2 = exact_time_plot("exact.timings.csv", "seq4Mx2", 190)
+  pdf("exact_ecoli_plot2.pdf", width=6.94, height=3.88, onefile=FALSE)
+  multiplot(p1,p2, cols=3)
+  dev.off()  
+}
+
+exact_primates_plot2 <- function(){
+  p1 = analysis_time_plot("analysis_time.csv", "primates", 0)
+  etp = exact_time_plot("../scripts/exact.timings.csv", "primates", 70)
+  edp = exact_dist_plot("../scripts/exact.results.csv", "primates")
+  pdf("exact_primates_plot2.pdf", width=9.94, height=3.88, onefile=FALSE)
+  multiplot(p1, etp,edp, cols=3)
+  dev.off()  
+}
+exact_dist_plot_grant <- function(csv.name, dataset){
+  bx = read.csv(csv.name, header = T, as.is = T)
+  bx$errs = factor(bx$errs)
+  bx$method = factor(bx$method)
+  levels(bx$method) = c("AlFreD (Exact)")
+  ggplot(data = bx, aes(x=errs, y=dist, fill=method)) +
+    geom_bar(stat="identity", position="dodge") +
+    # geom_text(aes(label = dist, y = dist+0.125), size = 3) +
+    xlab("Hamming Distance, k") +
+    ylab("RF Distance") +
+    theme(legend.position="none") +
+    #labs(fill="") + 
+    #theme(legend.position="top") +
+    #theme(legend.key.size = unit(0.3, "cm")) +
+    scale_fill_brewer(palette="Set2") +
+    theme(axis.title=element_text(size=22),
+          axis.text=element_text(size=20))
+}
+
+
+exact_time_plot_grant <- function(csv.name, dataset, tshift=70){
+  bx = read.csv(csv.name, header = T, as.is = T)
+  bx$tshift=tshift
+  bx$errs = factor(bx$errs)
+  bx$method = factor(bx$method)
+  bx$time = bx$time / 60.0
+  levels(bx$method) = c("AlFreD (Exact)")
+  ggplot(data = bx[bx$dataset == dataset, ],
+         aes(x=errs, y=time, fill=method)) +
+    geom_bar(stat="identity", position="dodge") +
+    # geom_text(aes(label = time, y = time+tshift), size = 3) +
+    xlab("Hamming Distance, k") +
+    ylab("Run Time (min)") +
+    theme(legend.position="none") +
+    #labs(fill="") + 
+    #theme(legend.position="top") +
+    #theme(legend.key.size = unit(0.3, "cm")) +
+    scale_fill_brewer(palette="Set2") +
+    theme(axis.title=element_text(size=22),
+          axis.text=element_text(size=20))
+}
+
+
+ecoli_plot_grant <- function(){
+  etp = exact_time_plot_grant("../scripts/exact.timings.csv", "primates", 70)
+  edp = exact_dist_plot_grant("../scripts/exact.results.csv", "primates")
+  pdf("exact_primates_plot_grant.pdf", width=6.94, height=3.88, onefile=FALSE)
+  multiplot(etp,edp, cols=2)
+  dev.off()  
+}
+
+#rb_plot()
+#bl_plot()
+#pm_plot()
+#ecoli_plot_grant()
 

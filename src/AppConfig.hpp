@@ -15,10 +15,13 @@ struct AppConfig{
     bool help;
     std::ofstream ofs;
     std::ofstream lfs;
+    std::ofstream histfs;
     int kv;
     int method;
     int extend;
     bool only_lcp;
+    bool histogram;
+    std::string histf;
 
     void printHelp(std::ostream& ots);
     bool validate(std::ostream& ots);
