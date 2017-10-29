@@ -7,6 +7,35 @@
 #include "NaiveLCPk.hpp"
 #include "HeuristicLCPk.hpp"
 
+void print_histo(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
+                 const ivec_t histoKXY[2], const unsigned& k,
+                 std::ostream& hfs, const char* key){
+    const std::string& sx = rdb.getReadById(i);
+    const std::string& sy = rdb.getReadById(j);
+
+    hfs << "\"" << key << "\"      : {" << std::endl;
+#ifdef DEBUG
+    hfs << "   \"meta\" : [" << i << ",\t" << j << ",\t" << sx.size() << ",\t"
+        << sy.size() << ",\t" << k << "]," << std::endl;
+#endif
+    hfs << "   \"" << rdb.getReadNameById(i)<< "\": [" << std::endl;
+    for(unsigned i = 0; i < histoKXY[0].size(); i++)
+        hfs << "        "
+            << histoKXY[0][i]
+            << ((i == histoKXY[0].size() - 1) ? "\n" : ",\n");
+    hfs << "   ]," << std::endl;
+    hfs << "   \"" << rdb.getReadNameById(j)<< "\": [" << std::endl;
+    for(unsigned i = 0; i < histoKXY[1].size(); i++)
+        hfs << "        "
+            << histoKXY[1][i]
+            << ((i == histoKXY[1].size() - 1) ? "\n" : ",\n");
+    hfs << "   ]" << std::endl;
+    hfs << "  }," << std::endl;
+
+}
+
+
+
 void print_lcpk(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
                 const ivec_t lcpKXY[2][2], const unsigned& k,
                 std::ostream& lfs, const char* key){
@@ -56,14 +85,20 @@ void klcp_pair_factory(unsigned i, unsigned j, ReadsDB& rdb,
     cfg.lfs << " []]," << std::endl;
 #endif
 #ifndef DEBUG_KLCP
-    print_lcpk(i, j, rdb, lxy.getkLCP(), 1, cfg.lfs, "lcpk");
+    print_lcpk(i, j, rdb, lxy.m_klcpXY, cfg.kv, cfg.lfs, "lcpk");
 #endif
     cfg.ofs << "{" << std::endl;
-    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv,
-               cfg.ofs, "lcpk");
+    print_lcpk(i, j, rdb, lxy.m_klcpXY, cfg.kv, cfg.ofs, "lcpk");
     cfg.ofs << "  \"end\": []" << std::endl
             << "}" << std::endl;
 
+    if(cfg.histogram){
+      cfg.histfs << "{" << std::endl;
+      print_histo(i, j, rdb, lxy.getkLCPHisto(), cfg.kv,
+                  cfg.histfs, "lcpkhisto");
+      cfg.histfs << "  \"end\": []" << std::endl
+              << "}" << std::endl;
+    }
 }
 
 void compute_klcp(ReadsDB& rdb, AppConfig& cfg){

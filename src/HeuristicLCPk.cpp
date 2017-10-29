@@ -134,16 +134,17 @@ void HeuristicLCPk::computeCrawlTest(int kv, int ext){
 
 void HeuristicLCPk::computeHistogram(){
     computeBasis();
-    //
-    for(int i = 0; i < 2; i++)
-        m_histoXY[i] = ivec_t(m_eLCPk.m_klcpXY[i][1]);
+    for(int i = 0; i < 2; i++){
+      m_histoXY[i].resize(m_klcpXY[i][1].size());
+      for(auto j = 0u; j < m_klcpXY[i][1].size(); j++)
+        m_histoXY[i][j] = m_klcpXY[i][1][j];
+    }
     extendRMQ();
     // subtract the base
     for(int i = 0; i < 2; i++)
         for(auto j = 0u; j < m_histoXY[i].size(); j++)
-            if(m_eLCPk.m_klcpXY[i][1][j] > m_histoXY[i][j])
-                m_histoXY[i][j] = m_eLCPk.m_klcpXY[i][1][j] - m_histoXY[i][j];
+            if(m_klcpXY[i][1][j] > m_histoXY[i][j])
+                m_histoXY[i][j] = m_klcpXY[i][1][j] - m_histoXY[i][j];
             else
                 m_histoXY[i][j] = 0;
-   // TODO: write down histogram
 }

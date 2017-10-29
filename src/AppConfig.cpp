@@ -13,8 +13,10 @@ void AppConfig::write(std::ostream& ots){
     ots << " \t\"in_files\" : \"" << ifiles.size() << "\"," << std::endl;
     ots << " \t\"out_file\" : \"" << outf << "\"," << std::endl;
     ots << " \t\"log_file\" : \"" << logf << "\"," << std::endl;
+    ots << " \t\"histogram_file\" : \"" << histf << "\"," << std::endl;
     ots << " \t\"kvalue\"   : \"" << kv << "\"," << std::endl;
     ots << " \t\"extend\"   : \"" << extend << "\"," << std::endl;
+    ots << " \t\"histogram\"   : \"" << histogram << "\"," << std::endl;
     ots << " \t\"method\"   : \"" << method_name(method) << "\"" << std::endl;
     ots << " }," << std::endl;
 }

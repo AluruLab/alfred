@@ -127,7 +127,6 @@ private:
     int32_t m_shiftPos[2];
     std::string m_strXY;
     ivec_t m_gsa, m_gisa, m_glcp;
-    ivec_t m_klcpXY[2][2];
     int m_kv;
     double m_nPass;
     double m_passSizes;
@@ -271,6 +270,8 @@ private:
     void selectSuffixes0(const InternalNode& uNode,
                          std::vector<L1Suffix>& leaves);
 public:
+    ivec_t m_klcpXY[2][2];
+    ivec_t m_klcpHistoXY[2];
     friend class HeuristicLCPk;
     friend class LRHeuristicLCPk;
     ExactLCPk(const std::string& x, const std::string& y,
@@ -279,6 +280,10 @@ public:
     void compute();
     auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
+    }
+
+    auto getkLCPHisto() -> const ivec_t (&)[2] {
+      return m_klcpHistoXY;
     }
     void computeTest(int k);
 };

@@ -8,8 +8,6 @@ private:
     AppConfig& m_aCfg;
     const std::string& m_sx;
     const std::string& m_sy;
-    ivec_t m_klcpXY[2][2];
-    ivec_t m_histoXY[2];
     int32_t m_strLengths[2];
     int32_t m_shiftPos[2][2];
     int m_kextend;
@@ -23,12 +21,17 @@ private:
     void computeBasis();
     void computeHistogram();
 public:
+    ivec_t m_klcpXY[2][2];
+    ivec_t m_histoXY[2];
     HeuristicLCPk(const std::string& x, const std::string& y,
                   AppConfig& cfg);
     void computeCrawl();
     void compute();
     auto getkLCP() -> const ivec_t (&)[2][2] {
         return m_klcpXY;
+    }
+    auto getkLCPHisto() -> const ivec_t (&)[2] {
+      return m_histoXY;
     }
     void computeCrawlTest(int kv, int ext);
     void computeTest(int kv, int ext);
