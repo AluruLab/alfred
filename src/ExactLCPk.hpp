@@ -51,6 +51,7 @@ struct InternalNode{
 };
 
 struct L1Suffix{
+  //      (c, c', 0/1), where c' = gisa[gsa[c] + d + 1]
     int32_t m_startPos; // starting position
     int32_t m_errSAPos; // position after one error's SA loc.
     int32_t m_srcStr;   // source string
@@ -122,6 +123,8 @@ public:
 class ExactLCPk{
 private:
     AppConfig& m_aCfg;
+    ivec_t m_klcpXY[2][2];
+    ivec_t m_klcpHistoXY[2];
     int32_t m_strLengths[2];
     int32_t m_strLenPfx[2];
     int32_t m_shiftPos[2];
@@ -269,9 +272,15 @@ private:
     void compute0();
     void selectSuffixes0(const InternalNode& uNode,
                          std::vector<L1Suffix>& leaves);
+
+    int32_t ansvLB0(int32_t curLeaf, int32_t ansvBound);
+    int32_t ansvRB0(int32_t curLeaf, int32_t ansvBound);
+    int32_t ansvLBK(const std::vector<L1Suffix>& trieLeaves,
+                    int32_t curLeaf, int32_t minIdx,
+                    int32_t ansvBound);
+    int32_t ansvRBK(const std::vector<L1Suffix>& trieLeaves,
+                    int32_t curLeaf, int32_t ansvBound);
 public:
-    ivec_t m_klcpXY[2][2];
-    ivec_t m_klcpHistoXY[2];
     friend class HeuristicLCPk;
     friend class LRHeuristicLCPk;
     ExactLCPk(const std::string& x, const std::string& y,

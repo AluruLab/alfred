@@ -151,16 +151,45 @@ void ExactLCPk::eliminateDupes(std::vector<InternalNode>& uNodes){
     uNodes.resize(j+1);
 }
 
+int32_t ExactLCPk::ansvLB0(int32_t curLeaf, int32_t ansvBound){
+  if(curLeaf + 1 >= (int32_t)m_gsa.size()) // reached the end
+    curLeaf = (int32_t)m_gsa.size() - 2;
+  if(curLeaf <= 2) // First two suffixes comes from the separators
+    return 2;
+  return (ansvBound < 2) ? 2 : ansvBound;
+}
+
+
+int32_t ExactLCPk::ansvRB0(int32_t curLeaf, int32_t ansvBound){
+  if(curLeaf <= 2) // First two suffixes comes from the separators
+    curLeaf = 2;
+  if(curLeaf + 1 >= (int32_t)m_gsa.size()) // reached the end
+    return curLeaf;
+  return ansvBound;
+}
+
 // Select internal nodes of the suffix tree
 void ExactLCPk::selectInternalNodes0(std::vector<InternalNode>& uNodes){
     uNodes.resize(m_gsa.size() - 2);
 
     std::vector<int32_t> lbounds, rbounds;
     ansvBounds0<int32_t, int32_t>(m_gsa, m_glcp, lbounds, rbounds);
+    assert(lbounds.size() == m_gsa.size());
+    assert(rbounds.size() == m_gsa.size());
     // Get all the internal nodes
     for(int32_t i = 2; i < (int32_t)m_gsa.size() - 1; i++){
-        uNodes[i-2].m_leftBound = lbounds[i]; // leftBound0(i);
-        uNodes[i-2].m_rightBound = rbounds[i]; // rightBound0(i);
+        //uNodes[i-2].m_leftBound = leftBound0(i);
+        //uNodes[i-2].m_rightBound = rightBound0(i);
+        uNodes[i-2].m_leftBound = ansvLB0(i+1, lbounds[i+1]);
+        uNodes[i-2].m_rightBound = ansvRB0(i+1, rbounds[i+1]);
+        /*
+        std::cout
+          << uNodes[i-2].m_leftBound << "," << uNodes[i-2].m_rightBound
+          << ":::"
+          << ansvLB0(i+1, lbounds[i+1]) << ", "
+          << ansvRB0(i+1, rbounds[i+1])
+          << std::endl ;
+        */
         uNodes[i-2].m_stringDepth = m_glcp[i + 1];
         uNodes[i-2].m_delta = 0;
     }
@@ -270,6 +299,25 @@ int32_t ExactLCPk::rightBoundK(const std::vector<L1Suffix>& trieLeaves,
     return rpos;
 }
 
+int32_t ExactLCPk::ansvLBK(const std::vector<L1Suffix>& trieLeaves,
+                           int32_t curLeaf, int32_t minIdx,
+                           int32_t ansvBound){
+  if(curLeaf + 1 >= (int32_t)trieLeaves.size()) // reached the end
+    curLeaf = (int32_t) trieLeaves.size() - 2;
+  if(curLeaf <= 0)
+    return 0;
+  return ansvBound < minIdx ? minIdx : ansvBound;
+}
+
+int32_t ExactLCPk::ansvRBK(const std::vector<L1Suffix>& trieLeaves,
+                           int32_t curLeaf, int32_t ansvBound){
+  if(curLeaf < 0)
+    curLeaf = 1;
+  if(curLeaf + 1 >= (int32_t)trieLeaves.size()) // reached the end
+    return (int32_t)trieLeaves.size() - 1;
+  return ansvBound;
+}
+
 //
 // Select internal nodes of the trie resulting from chopping the
 //  suffixes (i.e. leaves) corresponding to the internal node
@@ -290,16 +338,32 @@ void ExactLCPk::selectInternalNodesK(const InternalNode& prevNode,
     };
     RMQ rminq(*this);
     ansvBoundsK<int32_t, int32_t, RMQ>(leaves, rminq, lbounds, rbounds);
+    int32_t minValidIdx = 0;
+    for(int32_t i = 0; i < (int32_t)leaves.size(); i++){
+      if(leaves[i].m_errSAPos >= 2) // find the one which doesn't reach the end
+        break;
+      minValidIdx++;
+    }
     // for each leaf
     for(int32_t i = 0; i < (int32_t)leaves.size(); i++){
         if(leaves[i].m_errSAPos < 2) // skip the one which reach the end
             continue;
         // - make an internal node
         InternalNode uNode;
-        // uNode.m_leftBound = leftBoundK(leaves, i); // get left end
-        // uNode.m_rightBound = rightBoundK(leaves, i); // get right end
-        uNode.m_leftBound = lbounds[i];
-        uNode.m_rightBound = rbounds[i];
+        //uNode.m_leftBound = leftBoundK(leaves, i); // get left end
+        //uNode.m_rightBound = rightBoundK(leaves, i); // get right end
+        uNode.m_leftBound = ansvLBK(leaves, i, minValidIdx, lbounds[i]);
+        uNode.m_rightBound = ansvRBK(leaves, i, rbounds[i]);
+        /*
+        std::cout
+          << i << " " << minValidIdx
+          << "  " << leaves[i].m_errSAPos << " "
+          << uNode.m_leftBound << "," << uNode.m_rightBound
+          << ":::"
+          << ansvLBK(leaves, i, minValidIdx, lbounds[i]) << ", "
+          << ansvRBK(leaves, i, rbounds[i])
+          << std::endl ;
+        */
         if(uNode.m_leftBound == uNode.m_rightBound) // skip internal node with 1 leaf
             continue;
         // prevNode.depth + 1 + get range min lcp of left and right ends

@@ -85,10 +85,10 @@ void klcp_pair_factory(unsigned i, unsigned j, ReadsDB& rdb,
     cfg.lfs << " []]," << std::endl;
 #endif
 #ifndef DEBUG_KLCP
-    print_lcpk(i, j, rdb, lxy.m_klcpXY, cfg.kv, cfg.lfs, "lcpk");
+    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.lfs, "lcpk");
 #endif
     cfg.ofs << "{" << std::endl;
-    print_lcpk(i, j, rdb, lxy.m_klcpXY, cfg.kv, cfg.ofs, "lcpk");
+    print_lcpk(i, j, rdb, lxy.getkLCP(), cfg.kv, cfg.ofs, "lcpk");
     cfg.ofs << "  \"end\": []" << std::endl
             << "}" << std::endl;
 
