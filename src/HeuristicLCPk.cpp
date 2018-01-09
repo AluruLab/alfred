@@ -134,17 +134,30 @@ void HeuristicLCPk::computeCrawlTest(int kv, int ext){
 
 void HeuristicLCPk::computeHistogram(){
     computeBasis();
+    ivec_t tmpLCP[2];
     for(int i = 0; i < 2; i++){
-      m_histoXY[i].resize(m_klcpXY[i][1].size());
+      tmpLCP[i].resize(m_klcpXY[i][1].size());
       for(auto j = 0u; j < m_klcpXY[i][1].size(); j++)
-        m_histoXY[i][j] = m_klcpXY[i][1][j];
+        tmpLCP[i][j] = m_klcpXY[i][1][j];
     }
     extendRMQ();
     // subtract the base
     for(int i = 0; i < 2; i++)
         for(auto j = 0u; j < m_histoXY[i].size(); j++)
-            if(m_klcpXY[i][1][j] > m_histoXY[i][j])
-                m_histoXY[i][j] = m_klcpXY[i][1][j] - m_histoXY[i][j];
+            if(m_klcpXY[i][1][j] > tmpLCP[i][j])
+                tmpLCP[i][j] = m_klcpXY[i][1][j] - tmpLCP[i][j];
             else
-                m_histoXY[i][j] = 0;
+                tmpLCP[i][j] = 0;
+
+    for(int i = 0; i < 2; i++) {
+      if(tmpLCP[i].size() == 0) continue;
+
+      auto mval = std::max_element(tmpLCP[i].begin(),
+                                   tmpLCP[i].end());
+      m_histoXY[i].resize(*mval + 1, 0);
+
+      for(auto j = 0u; j < tmpLCP[i].size(); j++)
+        if(j == 0 || m_klcpXY[i][0][j - 1] != (m_klcpXY[i][0][j] + 1))
+          m_histoXY[i][tmpLCP[i][j]] += 1;
+    }
 }
