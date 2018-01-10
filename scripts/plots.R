@@ -175,8 +175,9 @@ exact_dist_plot <- function(csv.name, dataset){
     #labs(fill="") + 
     #theme(legend.position="top") +
     #theme(legend.key.size = unit(0.3, "cm")) +
-    scale_fill_brewer(palette="Set2") +
+    scale_fill_brewer(palette="PRGn") +
     theme(axis.title=element_text(size=10)) 
+    #scale_fill_manual(values=cbPalette)
 }
 
 analysis_time_plot <- function(csv.name, dataset, tshift=70){
@@ -187,7 +188,7 @@ analysis_time_plot <- function(csv.name, dataset, tshift=70){
   levels(bx$method) = c("Analysis")
   ggplot(data = bx[bx$dataset == dataset, ],
          aes(x=errs, y=time, fill=method)) +
-    geom_point() +
+    geom_bar(stat="identity") +
     geom_text(aes(label = time, y = time+tshift), size = 3) +
     xlab("Hamming Distance, k") +
     ylab("Complexity Analysis Time") +
@@ -202,11 +203,12 @@ analysis_time_plot <- function(csv.name, dataset, tshift=70){
 
 exact_time_plot <- function(csv.name, dataset, tshift=70){
   bx = read.csv(csv.name, header = T, as.is = T)
+  bx = bx[bx$dataset == dataset, ]
   bx$tshift=tshift
   bx$errs = factor(bx$errs)
   bx$method = factor(bx$method)
   levels(bx$method) = c("AlFreD (Exact)")
-  ggplot(data = bx[bx$dataset == dataset, ],
+  ggplot(data = bx,
          aes(x=errs, y=time, fill=method)) +
     geom_bar(stat="identity", position="dodge") +
     geom_text(aes(label = time, y = time+tshift), size = 3) +
@@ -244,7 +246,19 @@ exact_ecoli_plot2 <- function(){
   p1 = analysis_time_plot("analysis_time.csv", "seq4Mx2", 0)
   p2 = exact_time_plot("exact.timings.csv", "seq4Mx2", 190)
   pdf("exact_ecoli_plot2.pdf", width=6.94, height=3.88, onefile=FALSE)
-  multiplot(p1,p2, cols=3)
+  multiplot(p1,p2, cols=2)
+  dev.off()  
+}
+
+exact_ecoli_plot3 <- function(){
+  #p1 = analysis_time_plot("analysis_time.csv", "seq4Mx2", 0)
+  p1 = analysis_time_plot("analysis_time.csv", "seq4Mx2", 0) + 
+    scale_y_log10(breaks = c(2,16, 16*8, 16*(8^2), 16*(8^3), 16*(8^4), 16*(8^5),16*(8^6) ))
+  p2 = exact_time_plot("exact.timings.csv", "seq4Mx2", 
+                       2*c(0.7,4,28,140,580,1900)) +
+    scale_y_log10(breaks = c(0, 2,4,8,16,32,64,128,256,512,1024,2048,4096,8192))
+  pdf("exact_ecoli_plot3.pdf", width=6.94, height=3.88, onefile=FALSE)
+  multiplot(p1,p2, cols=2)
   dev.off()  
 }
 
@@ -256,6 +270,20 @@ exact_primates_plot2 <- function(){
   multiplot(p1, etp,edp, cols=3)
   dev.off()  
 }
+
+exact_primates_plot3 <- function(){
+  p1 = analysis_time_plot("analysis_time.csv", "primates", 0) +
+    scale_y_log10(breaks = c(2,16, 16*8, 16*(8^2), 16*(8^3), 16*(8^4), 16*(8^5) ))
+  etp = exact_time_plot("../scripts/exact.timings.csv", "primates", 
+                        c(0.8,4,24,90,260,700)) +
+    scale_y_log10(breaks = c(0, 2,4,8,16,32,64,128,256,512,1024,2048))
+  edp = exact_dist_plot("../scripts/exact.results.csv", "primates")
+  pdf("exact_primates_plot3.pdf", width=9.94, height=3.88, onefile=FALSE)
+  multiplot(p1, etp,edp, cols=3)
+  dev.off()  
+}
+
+
 exact_dist_plot_grant <- function(csv.name, dataset){
   bx = read.csv(csv.name, header = T, as.is = T)
   bx$errs = factor(bx$errs)

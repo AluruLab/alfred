@@ -1,4 +1,5 @@
 #include "HeuristicLCPk.hpp"
+#include <algorithm>
 
 HeuristicLCPk::HeuristicLCPk(const std::string& x, const std::string& y,
                              AppConfig& cfg): m_eLCPk(x, y, cfg), m_aCfg(cfg),
