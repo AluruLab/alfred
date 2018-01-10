@@ -143,12 +143,13 @@ void HeuristicLCPk::computeHistogram(){
     extendRMQ();
     // subtract the base
     for(int i = 0; i < 2; i++)
-        for(auto j = 0u; j < m_histoXY[i].size(); j++)
+        for(auto j = 0u; j < tmpLCP[i].size(); j++)
             if(m_klcpXY[i][1][j] > tmpLCP[i][j])
-                tmpLCP[i][j] = m_klcpXY[i][1][j] - tmpLCP[i][j];
+               tmpLCP[i][j] = m_klcpXY[i][1][j] - tmpLCP[i][j] - 1;
             else
                 tmpLCP[i][j] = 0;
-
+    //m_histoXY[0] = tmpLCP[0]; m_histoXY[1] = tmpLCP[1];
+    //return;
     for(int i = 0; i < 2; i++) {
       if(tmpLCP[i].size() == 0) continue;
 
@@ -157,7 +158,7 @@ void HeuristicLCPk::computeHistogram(){
       m_histoXY[i].resize(*mval + 1, 0);
 
       for(auto j = 0u; j < tmpLCP[i].size(); j++)
-        if(j == 0 || m_klcpXY[i][0][j - 1] != (m_klcpXY[i][0][j] + 1))
+        if(j == 0 || (m_klcpXY[i][0][j - 1] + 1) != m_klcpXY[i][0][j])
           m_histoXY[i][tmpLCP[i][j]] += 1;
     }
 }

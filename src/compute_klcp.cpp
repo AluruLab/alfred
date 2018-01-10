@@ -30,7 +30,7 @@ void print_histo(const unsigned& i, const unsigned& j, const ReadsDB& rdb,
             << histoKXY[1][i]
             << ((i == histoKXY[1].size() - 1) ? "\n" : ",\n");
     hfs << "   ]" << std::endl;
-    hfs << "  }," << std::endl;
+    hfs << "  }" << std::endl;
 
 }
 
@@ -95,9 +95,8 @@ void klcp_pair_factory(unsigned i, unsigned j, ReadsDB& rdb,
     if(cfg.histogram){
       cfg.histfs << "{" << std::endl;
       print_histo(i, j, rdb, lxy.getkLCPHisto(), cfg.kv,
-                  cfg.histfs, "lcpkhisto");
-      cfg.histfs << "  \"end\": []" << std::endl
-              << "}" << std::endl;
+                  cfg.histfs, "histo");
+      cfg.histfs << "}" << std::endl;
     }
 }
 
