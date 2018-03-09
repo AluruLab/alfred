@@ -45,3 +45,7 @@ matching for longest common prefix in the ACS_k computation.
 If you want to run with a specific set of input files, then you can run as follows:
 
     build/arakawa.x -f data/filex.fa,data/filey.fa -o acs.primates.k3.out -k 3
+
+## License
+
+Apache License 2.0
