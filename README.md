@@ -46,6 +46,12 @@ If you want to run with a specific set of input files, then you can run as follo
 
     build/alfred.x -f data/filex.fa,data/filey.fa -o acs.primates.k3.out -k 3
 
+## Publications
+
+1. Thankachan, S. V., Chockalingam, S. P., Liu, Y., Krishnan, A., & Aluru, S. A greedy alignment-free distance estimator for phylogenetic inference. In Computational Advances in Bio and Medical Sciences (ICCABS), 2015 IEEE 5th International Conference on (pp. 1-1). IEEE. 2015.
+2. Thankachan, S.V., Chockalingam, S.P., Liu, Y., Apostolico, A. and Aluru, S., 2015. ALFRED: a practical method for alignment-free distance computation. Journal of Computational Biology.
+
+
 ## License
 
 Apache License 2.0
