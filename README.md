@@ -25,7 +25,7 @@ Next, Create a build directory. For example,
      mkdir build
      cd build
 
-Finally, build the executable 'arakawa.x'.
+Finally, build the executable 'alfred.x'.
 
      cmake ..
      make
