@@ -35,7 +35,7 @@ Finally, build the executable 'arakawa.x'.
 Place the input sequences into fasta files, with each sequence placed in a separate file, in a directory. Run the program while providing this input directory as -i option, the output file as the -o option, and the number of mismatches to allow is given as -k option.
 An example is shown below:
 
-    build/arakawa.x -i data/primates/ -o acs.primates.k3.out -k 3
+    build/alfred.x -i data/primates/ -o acs.primates.k3.out -k 3
 
 The above command runs the ACS_k prefix-chopping algorithm for the input
 files in the directory "data/primates" and produces the output to
@@ -44,7 +44,7 @@ matching for longest common prefix in the ACS_k computation.
 
 If you want to run with a specific set of input files, then you can run as follows:
 
-    build/arakawa.x -f data/filex.fa,data/filey.fa -o acs.primates.k3.out -k 3
+    build/alfred.x -f data/filex.fa,data/filey.fa -o acs.primates.k3.out -k 3
 
 ## License
 
